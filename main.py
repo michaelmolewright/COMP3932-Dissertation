@@ -12,7 +12,7 @@ G.add_edge("A","B", weight=3)
 G.add_edge("A","C", weight=5)
 G.add_edge("B","C", weight=1)
 
-lp1 = nx.laplacian_matrix(G)
+L = nx.laplacian_matrix(G)
 
 def matPrintView(matrix):
     size = matrix.shape
@@ -21,8 +21,14 @@ def matPrintView(matrix):
             print(matrix[i,j], " ",end = '')
         print()
 
-matPrintView(lp1)
+#matrix.A returns matrix view
+print(L.A)
+eigW, eigV = np.linalg.eig(L.A)
+#print("Largest eigenvalue:", max(e))
+#print("Smallest eigenvalue:", min(e))
 
+print(eigW)
+print(eigV)
 
 
 #ax = plt.subplot(121)
