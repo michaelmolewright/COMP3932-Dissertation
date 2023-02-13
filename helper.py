@@ -17,7 +17,7 @@ def makeMoonsGraph(X):
             dy = node[1] - X[j][1]
             dist = (dx**2 + dy**2)**0.5
             w = 2.781 ** ( ((dist ** 2)) / 2)
-            G.add_edge(i,j,weight = dist)
+            G.add_edge(i,j,weight = w)
     return G
 
 def findBestEigen(eigVecs, Correct_labels, X):
