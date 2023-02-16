@@ -2,16 +2,17 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
-import helper as help
+import helper as util
+
+matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n =10
-X, Y = make_moons(n_samples=n, noise=0)
+n =300
+X, Y = make_moons(n_samples=n, noise=0.05)
 
-moonsGraph = help.makeMoonsGraph(X)
-L = nx.laplacian_matrix(moonsGraph)
-A = nx.adjacency_matrix(moonsGraph)
+moonsGraph = util.makeMoonsGraph(X)
+
 Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
 #matrix.A returns matrix view
 
@@ -20,24 +21,13 @@ Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
 #Get Eigen Values and vectors
 eigvalues, eigVectors = np.linalg.eig(Lnorm.A)
 
-#Sort eigen vectors and values
-eigens = []
-for i, val in enumerate(eigvalues):
-    eigens.append([val, eigVectors[i], i])
-
-def sortingFunc(e):
-  return e[0]
-
-eigens.sort(reverse=False , key=sortingFunc)
-eigens[0][0] = 0
-vec1 = []
-
-for i in range(n):
-    vec1.append(1)
-
-eigens[0][1] = vec1
-
-
+'''
+Eigens Dictionary structure 
+Values = []
+Vectors = []
+Key = []
+'''
+eigens = util.sortEigens(eigvalues, eigVectors)
 
 numbers = {
     "a" : [],
@@ -47,27 +37,40 @@ numbers = {
 } 
 
 c = 1
-euler = 2
+epsilon = 2
 dt = 0.1
 iterations = 100
 
-def u0(second_eigen, x):
-    
-    mean = 0
-    for i in second_eigen:
-        mean += i
-    mean /= len(second_eigen)
+a = util.a_init(eigens["key"], eigens["vectors"])
+b = util.b_init(eigens["key"], eigens["vectors"])
+d = util.d_init(eigens["vectors"])
+D = util.D_init(dt, eigens["values"], c, epsilon)
 
-    val = second_eigen[x] - mean
-    if val <= 0:
-        return -1
-    else:
-        return 1
+#print(a)
+#print(b)
+#print(d)
+#print(D)
 
+#for i in range(10):
+ #   a = util.a_nth(a,b,d,D,dt,epsilon,c)
+  #  b = util.b_nth(eigens["key"], eigens["vectors"], a )
+   # d = util.d_nth(eigens["key"], eigens["vectors"], a )
+    #print(a)
+    #print(b)
+    #print(d)
+    #input()
 
+output = []
+'''
+for i in eigens["key"]:
+    print( i, util.segment(util.u_nth(a, eigens["vectors"], i)))
+    output.append(util.segment(util.u_nth(a, eigens["vectors"], i)))
+
+'''
+for i in range(n):
+    output.append(util.u_initial(eigens["vectors"][1], i))
 #init a
-
-
+'''
 for i,eig in enumerate(eigens):
     numbers["d"].append(0)
     numbers["D"].append(1 + (dt * ((euler * eig[0]) + c)))
@@ -81,8 +84,8 @@ for i,eig in enumerate(eigens):
     numbers["a"].append(a)
     numbers["b"].append(b)
 
+'''
 
-finalU = []
 '''
 for i in range(0,500):
     for j in range(0,len(numbers["a"])):
@@ -105,11 +108,13 @@ for i in range(0,500):
         numbers["d"][k] = 0
     finalU = u
 '''
-            
+'''            
 for i in eigVectors:
     for j in eigVectors:
         print(round(np.dot(i, j), 2))
 #initialize a
+
+
 
 new_x = []
 new_y = []
@@ -117,7 +122,13 @@ new_y = []
 for r in X:
     new_x.append(r[0])
     new_y.append(r[1])
+'''
+new_x = []
+new_y = []
 
+for r in X:
+    new_x.append(r[0])
+    new_y.append(r[1])
 
 #kmeans = KMeans(n_clusters=2)
 #new_data = eigV[0].reshape(-1,1)
@@ -126,8 +137,8 @@ for r in X:
 
 #kmeans.fit(new_data)
 #spec.fit(X)
-#plt.scatter(new_x, new_y, c=finalU)
-#plt.savefig("moons.png")
+plt.scatter(new_x, new_y, c=output)
+plt.savefig("moons.png")
 
 #pos=nx.get_node_attributes(moonsGraph,'pos')
 #ax = plt.subplot(121)
