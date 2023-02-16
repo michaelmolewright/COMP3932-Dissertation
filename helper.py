@@ -42,3 +42,65 @@ def findBestEigen(eigVecs, Correct_labels, X):
         print("EigenVector ", count, " Accuracy = ", accuracy)
         plt.scatter(new_x, new_y, c=kmeans.labels_)
         plt.savefig("moons.png")
+
+
+
+'''
+Making functions for the convex splitting scheme
+'''
+
+#Initial function for 2 Moons graph
+#returns 1 or -1 if value is above or below 0
+def u_initial(second_eigen, x):
+    
+    mean = 0
+    for i in second_eigen:
+        mean += i
+    mean /= len(second_eigen)
+
+    val = second_eigen[x] - mean
+    if val <= 0:
+        return -1
+    else:
+        return 1
+
+#returns the U(x) function for the nth iteration
+def u_nth(a_k, phi_k):
+    val = 0
+    return val
+
+#Initializing different starting variables
+
+#initialize a
+#a(0)k = int u(x) dot φk(x) dx.
+def a_init():
+    a = []
+    return a
+
+#initialize b
+#e b(0)k = int [u0(x)]^^3 dot φk(x) dx.
+def b_init():
+    a = []
+    return a
+
+#initialize d
+#d(0)k = 0
+def d_init(λ):
+    d = []
+    for val in λ:
+        d.append(val)
+    return d
+
+#initialize D
+#Dk = 1 + dt ( λ_k + c)
+def D_init(dt, λ, c):
+    D = []
+    for val in λ:
+        D.append(1 + (dt * ( val + c)))
+    return D
+
+
+
+#Fidelity function
+def fidelity(x):
+    return 1

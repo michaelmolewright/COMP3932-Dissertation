@@ -6,7 +6,7 @@ import helper as help
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n =20
+n =10
 X, Y = make_moons(n_samples=n, noise=0)
 
 moonsGraph = help.makeMoonsGraph(X)
@@ -83,7 +83,7 @@ for i,eig in enumerate(eigens):
 
 
 finalU = []
-
+'''
 for i in range(0,500):
     for j in range(0,len(numbers["a"])):
         numbers["a"][j] = ( (1+ dt/euler + c*dt) * numbers["a"][j] - (dt/euler)*numbers["b"][j] - dt*numbers["d"][j])/numbers["D"][j]
@@ -104,9 +104,11 @@ for i in range(0,500):
         numbers["b"][k] = 0
         numbers["d"][k] = 0
     finalU = u
-
+'''
             
-print(finalU)
+for i in eigVectors:
+    for j in eigVectors:
+        print(round(np.dot(i, j), 2))
 #initialize a
 
 new_x = []
@@ -124,8 +126,8 @@ for r in X:
 
 #kmeans.fit(new_data)
 #spec.fit(X)
-plt.scatter(new_x, new_y, c=finalU)
-plt.savefig("moons.png")
+#plt.scatter(new_x, new_y, c=finalU)
+#plt.savefig("moons.png")
 
 #pos=nx.get_node_attributes(moonsGraph,'pos')
 #ax = plt.subplot(121)
