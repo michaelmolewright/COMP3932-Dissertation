@@ -8,14 +8,14 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n = 20
+n = 40
 X, Y = make_moons(n_samples=n, noise=0)
 
 X = np.ndarray.tolist(X)
 X.sort(key=util.sortingFunction)
 
 moonsGraph = util.makeMoonsGraph(X)
-
+moonsGraph = util.n_nearest_Neighbours(moonsGraph,7)
 Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
 #matrix.A returns matrix view
 
@@ -31,9 +31,10 @@ Values = []
 Vectors = []
 Key = []
 '''
+
 eigens = util.sortEigens(eigvalues, eigVectors)
-for i, val in enumerate(eigens["vectors"]):
-    print(i, ": ", eigens["values"][i], val)
+#for i, val in enumerate(eigens["vectors"]):
+  #  print(i, ": ", eigens["values"][i], val)
 
 
 c = 1
@@ -41,10 +42,10 @@ epsilon = 2
 dt = 0.1
 iterations = 100
 
-a = util.a_init(X, eigens["vectors"])
-b = util.b_init(X, eigens["vectors"])
-d = util.d_init(eigens["vectors"])
-D = util.D_init(dt, eigens["values"], c, epsilon)
+#a = util.a_init(X, eigens["vectors"])
+#b = util.b_init(X, eigens["vectors"])
+#d = util.d_init(eigens["vectors"])
+#D = util.D_init(dt, eigens["values"], c, epsilon)
 
 #print(a)
 #print(b)
@@ -65,8 +66,11 @@ output = []
 for i in eigens["key"]:
     print( i, util.segment(util.u_nth(a, eigens["vectors"], i)))
     output.append(util.segment(util.u_nth(a, eigens["vectors"], i)))
-
 '''
+for i in range(len(eigens["vectors"][1])):
+    output.append(util.segment(eigens["vectors"][1][i]))
+'''
+
 for i in range(len(eigens["vectors"][1])):
     output.append(util.segment(eigens["vectors"][1][i]))
 
@@ -75,6 +79,7 @@ for i in eigens["vectors"][0]:
     total += i**2
 
 print(total)
+'''
 #init a
 ''' 
 for i,eig in enumerate(eigens):
@@ -136,21 +141,20 @@ for r in X:
     new_x.append(r[0])
     new_y.append(r[1])
 
-#kmeans = KMeans(n_clusters=2)
-#new_data = []
-#for i in eigens["vectors"][1]:
- #   new_data.append([i])
+kmeans = KMeans(n_clusters=2)
 
-#spec = SpectralClustering(n_clusters=4, affinity='nearest_neighbors')
+
+#spec = SpectralClustering(n_clusters=2, affinity='nearest_neighbors')
 
 #print(new_data)
-
-#kmeans.fit(new_data)
+print(eigens["vectors"][1])
+kmeans.fit(eigens["vectors"][1].reshape(-1, 1))
 #spec.fit(X)
-plt.scatter(new_x, new_y, c=output)
+plt.scatter(new_x, new_y, c=kmeans.labels_)
 plt.savefig("moons.png")
 
-#pos=nx.get_node_attributes(moonsGraph,'pos')
-#ax = plt.subplot(121)
-#nx.draw(moonsGraph, pos)
-#plt.savefig('graph.png')
+pos=nx.get_node_attributes(moonsGraph,'pos')
+
+ax = plt.subplot(121)
+nx.draw(moonsGraph, pos)
+plt.savefig('graph.png')

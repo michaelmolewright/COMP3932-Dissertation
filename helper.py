@@ -13,11 +13,11 @@ def makeMoonsGraph(X):
 
     for i,node in enumerate(X):
         for j in range(i+1,len(X)):
-            dx = node[0] - X[j][0]
-            dy = node[1] - X[j][1]
-            dist = (dx**2 + dy**2)**0.5
-            w = 2.781 ** ( -((dist ** 2)) / 2)
-            G.add_edge(i,j,weight = w)
+            #dx = node[0] - X[j][0]
+            #dy = node[1] - X[j][1]
+            #dist = (dx**2 + dy**2)**0.5
+            w = 0 #2.781 ** ( -((dist ** 2)) / 2)
+            #G.add_edge(i,j)
     return G
 
 def findBestEigen(eigVecs, Correct_labels, X):
@@ -43,7 +43,24 @@ def findBestEigen(eigVecs, Correct_labels, X):
         plt.scatter(new_x, new_y, c=kmeans.labels_)
         plt.savefig("moons.png")
 
+def dist(a,b):
+    return (a**2 + b**2)**0.5
 
+def n_nearest_Neighbours(G, M):
+    node = 0
+
+    all_distances = []
+    for i in range(0,len(list(G.nodes))):
+        init_pos = G.nodes[node]['pos']
+        distances = []
+        for n in list(G.nodes):
+            distances.append([dist(init_pos[0] - G.nodes[n]['pos'][0] , init_pos[1] - G.nodes[n]['pos'][1]), n])
+            distances.sort(key=sortingFunction)
+        for i in distances:
+            if node != i[1]:
+                G.add_edge(node, i[1], weight= 2.781 ** ( -((i[0] ** 2)) / 2))
+        node += 1
+    return G
 
 '''
 Making functions for the convex splitting scheme
