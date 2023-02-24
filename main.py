@@ -8,8 +8,11 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n =300
-X, Y = make_moons(n_samples=n, noise=0.05)
+n = 20
+X, Y = make_moons(n_samples=n, noise=0)
+
+X = np.ndarray.tolist(X)
+X.sort(key=util.sortingFunction)
 
 moonsGraph = util.makeMoonsGraph(X)
 
@@ -21,6 +24,7 @@ Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
 #Get Eigen Values and vectors
 eigvalues, eigVectors = np.linalg.eig(Lnorm.A)
 
+
 '''
 Eigens Dictionary structure 
 Values = []
@@ -28,21 +32,17 @@ Vectors = []
 Key = []
 '''
 eigens = util.sortEigens(eigvalues, eigVectors)
+for i, val in enumerate(eigens["vectors"]):
+    print(i, ": ", eigens["values"][i], val)
 
-numbers = {
-    "a" : [],
-    "b" : [],
-    "d" : [],
-    "D" : [],
-} 
 
 c = 1
 epsilon = 2
 dt = 0.1
 iterations = 100
 
-a = util.a_init(eigens["key"], eigens["vectors"])
-b = util.b_init(eigens["key"], eigens["vectors"])
+a = util.a_init(X, eigens["vectors"])
+b = util.b_init(X, eigens["vectors"])
 d = util.d_init(eigens["vectors"])
 D = util.D_init(dt, eigens["values"], c, epsilon)
 
@@ -67,10 +67,16 @@ for i in eigens["key"]:
     output.append(util.segment(util.u_nth(a, eigens["vectors"], i)))
 
 '''
-for i in range(n):
-    output.append(util.u_initial(eigens["vectors"][1], i))
+for i in range(len(eigens["vectors"][1])):
+    output.append(util.segment(eigens["vectors"][1][i]))
+
+total = 0
+for i in eigens["vectors"][0]:
+    total += i**2
+
+print(total)
 #init a
-'''
+''' 
 for i,eig in enumerate(eigens):
     numbers["d"].append(0)
     numbers["D"].append(1 + (dt * ((euler * eig[0]) + c)))
@@ -131,9 +137,13 @@ for r in X:
     new_y.append(r[1])
 
 #kmeans = KMeans(n_clusters=2)
-#new_data = eigV[0].reshape(-1,1)
+#new_data = []
+#for i in eigens["vectors"][1]:
+ #   new_data.append([i])
 
 #spec = SpectralClustering(n_clusters=4, affinity='nearest_neighbors')
+
+#print(new_data)
 
 #kmeans.fit(new_data)
 #spec.fit(X)

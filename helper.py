@@ -16,7 +16,7 @@ def makeMoonsGraph(X):
             dx = node[0] - X[j][0]
             dy = node[1] - X[j][1]
             dist = (dx**2 + dy**2)**0.5
-            w = 2.781 ** ( ((dist ** 2)) / 2)
+            w = 2.781 ** ( -((dist ** 2)) / 2)
             G.add_edge(i,j,weight = w)
     return G
 
@@ -111,13 +111,13 @@ def a_init( nodes, eigenVectors):
     a = []
     total = 0
     for k in range(len(eigenVectors)):
-        for x in nodes:
+        for x in range(len(nodes)):
             total += u_initial( eigenVectors[1], x) * eigenVectors[k][x]
         a.append(total)
     return a
 
 # a_nth
-def a_nth(a, b, d, D, dt, epsilon, c,):
+def a_nth(a, b, d, D, dt, epsilon, c):
     new_a = []
     for k in range(len(a)):
         term1 = ( 1 + ( dt / epsilon) + (c * dt) ) * a[k] #a term
@@ -135,7 +135,7 @@ def b_init(nodes, eigenVectors):
     b = []
     total = 0
     for k in range(len(eigenVectors)):
-        for x in nodes:
+        for x in range(len(nodes)):
             total += u_initial( eigenVectors[1], x) * eigenVectors[k][x]
         b.append(total)
     return b
@@ -146,7 +146,7 @@ def b_nth(nodes, eigenVectors, a_k):
     b = []
     total = 0
     for k in range(len(eigenVectors)):
-        for x in nodes:
+        for x in range(len(nodes)):
             total += (u_nth(a_k, eigenVectors, x)) * eigenVectors[k][x]
         b.append(total)
     return b
