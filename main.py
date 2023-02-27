@@ -8,15 +8,27 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n = 40
-X, Y = make_moons(n_samples=n, noise=0)
+n = 1000
+X, Y = make_moons(n_samples=n, noise=0.05)
 
 X = np.ndarray.tolist(X)
-X.sort(key=util.sortingFunction)
+Y = np.ndarray.tolist(Y)
+
+newArr = []
+for i,x in enumerate(X):
+    newArr.append([x,Y[i]])
+newArr.sort(key=util.sortingFunction2)
+
+X = []
+Y = []
+for i in newArr:
+    X.append(i[0])
+    Y.append(i[1])
+
 
 moonsGraph = util.makeMoonsGraph(X)
-moonsGraph = util.n_nearest_Neighbours(moonsGraph,7)
-Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
+moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
+Lnorm = nx.laplacian_matrix(moonsGraph)
 #matrix.A returns matrix view
 
 #print(L.toarray())
@@ -35,7 +47,10 @@ Key = []
 eigens = util.sortEigens(eigvalues, eigVectors)
 #for i, val in enumerate(eigens["vectors"]):
   #  print(i, ": ", eigens["values"][i], val)
-
+val1 = Lnorm * eigens["vectors"][2]
+val2 = eigens["values"][2] * eigens["vectors"][2]
+print(val1)
+print(val2)
 
 c = 1
 epsilon = 2
@@ -141,15 +156,42 @@ for r in X:
     new_x.append(r[0])
     new_y.append(r[1])
 
-kmeans = KMeans(n_clusters=2)
+kmeans = KMeans(n_clusters=2, n_init=10)
 
+kmeans.fit(eigens["vectors"][1].reshape(-1, 1))
+plt.scatter(new_x, new_y, c=kmeans.labels_)
+plt.savefig("moons.png")
 
+total = 0
+for i, x in enumerate(Y):
+    if kmeans.labels_[i] == x:
+        total += 1
+acc = total / len(Y)
+print(acc)
 #spec = SpectralClustering(n_clusters=2, affinity='nearest_neighbors')
 
 #print(new_data)
-print(eigens["vectors"][1])
-kmeans.fit(eigens["vectors"][1].reshape(-1, 1))
-#spec.fit(X)
+'''
+a = 0
+highestVal = 0
+highestEig = 0
+for j in eigens["vectors"]:
+    kmeans.fit(j.reshape(-1, 1))
+    #spec.fit(X)
+    plt.scatter(new_x, new_y, c=kmeans.labels_)
+    plt.savefig("moons.png")
+    total = 0
+    for i, x in enumerate(Y):
+        if kmeans.labels_[i] == x:
+            total += 1
+    acc = total / len(Y)
+    if acc > highestVal:
+        highestEig = a
+        highestVal = acc
+    print("eigen", a, "accuracy = ", acc )
+    a += 1
+
+kmeans.fit(eigens["vectors"][highestEig].reshape(-1, 1))
 plt.scatter(new_x, new_y, c=kmeans.labels_)
 plt.savefig("moons.png")
 
@@ -158,3 +200,4 @@ pos=nx.get_node_attributes(moonsGraph,'pos')
 ax = plt.subplot(121)
 nx.draw(moonsGraph, pos)
 plt.savefig('graph.png')
+'''

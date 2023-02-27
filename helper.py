@@ -1,4 +1,3 @@
-
 import networkx as nx
 from sklearn.cluster import KMeans
 
@@ -56,10 +55,17 @@ def n_nearest_Neighbours(G, M):
         for n in list(G.nodes):
             distances.append([dist(init_pos[0] - G.nodes[n]['pos'][0] , init_pos[1] - G.nodes[n]['pos'][1]), n])
             distances.sort(key=sortingFunction)
-        for i in distances:
-            if node != i[1]:
-                G.add_edge(node, i[1], weight= 2.781 ** ( -((i[0] ** 2)) / 2))
+        all_distances.append([node, distances[M][0]] )
+        #for i in distances[:M]:
+          #  if node != i[1]:
+          #      G.add_edge(node, i[1], weight= 2.781 ** ( -((i[0] ** 2)) / 2))
         node += 1
+    all_distances.sort(key=sortingFunction)
+    for i in list(G.nodes):
+        for n in list(G.nodes):
+            if n != i:
+                d = dist(G.nodes[i]['pos'][0] - G.nodes[n]['pos'][0] , G.nodes[i]['pos'][1] - G.nodes[n]['pos'][1])
+                G.add_edge(n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )))
     return G
 
 '''
@@ -70,6 +76,9 @@ Making functions for the convex splitting scheme
 def sortingFunction(list):
     return list[0]
 
+def sortingFunction2(list):
+    return list[0][0]
+
 def sortEigens(eigenValues, eigenVectors):
     sortedEigens = []
     eigensDict = {
@@ -79,7 +88,7 @@ def sortEigens(eigenValues, eigenVectors):
     }
     
     for i, val in enumerate(eigenValues):
-        sortedEigens.append([val, eigenVectors[i], i])
+        sortedEigens.append([val, eigenVectors[:,i], i])
     
     sortedEigens.sort(reverse=False , key=sortingFunction)
 
