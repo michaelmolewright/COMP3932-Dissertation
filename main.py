@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n = 1000
+n = 100
 X, Y = make_moons(n_samples=n, noise=0.05)
 
 X = np.ndarray.tolist(X)
@@ -28,7 +28,7 @@ for i in newArr:
 
 moonsGraph = util.makeMoonsGraph(X)
 moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
-Lnorm = nx.laplacian_matrix(moonsGraph)
+Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
 #matrix.A returns matrix view
 
 #print(L.toarray())
@@ -47,10 +47,7 @@ Key = []
 eigens = util.sortEigens(eigvalues, eigVectors)
 #for i, val in enumerate(eigens["vectors"]):
   #  print(i, ": ", eigens["values"][i], val)
-val1 = Lnorm * eigens["vectors"][2]
-val2 = eigens["values"][2] * eigens["vectors"][2]
-print(val1)
-print(val2)
+
 
 c = 1
 epsilon = 2
@@ -76,25 +73,7 @@ iterations = 100
     #print(d)
     #input()
 
-output = []
-'''
-for i in eigens["key"]:
-    print( i, util.segment(util.u_nth(a, eigens["vectors"], i)))
-    output.append(util.segment(util.u_nth(a, eigens["vectors"], i)))
-'''
-for i in range(len(eigens["vectors"][1])):
-    output.append(util.segment(eigens["vectors"][1][i]))
-'''
 
-for i in range(len(eigens["vectors"][1])):
-    output.append(util.segment(eigens["vectors"][1][i]))
-
-total = 0
-for i in eigens["vectors"][0]:
-    total += i**2
-
-print(total)
-'''
 #init a
 ''' 
 for i,eig in enumerate(eigens):
@@ -156,21 +135,13 @@ for r in X:
     new_x.append(r[0])
     new_y.append(r[1])
 
-kmeans = KMeans(n_clusters=2, n_init=10)
-
-kmeans.fit(eigens["vectors"][1].reshape(-1, 1))
-plt.scatter(new_x, new_y, c=kmeans.labels_)
+#seg = util.second_eigenvector_segmentation(eigens["vectors"][1])
+nodes = list(moonsGraph.nodes)
+seg = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 500)
+plt.scatter(new_x, new_y, c=seg)
 plt.savefig("moons.png")
 
-total = 0
-for i, x in enumerate(Y):
-    if kmeans.labels_[i] == x:
-        total += 1
-acc = total / len(Y)
-print(acc)
-#spec = SpectralClustering(n_clusters=2, affinity='nearest_neighbors')
 
-#print(new_data)
 '''
 a = 0
 highestVal = 0
