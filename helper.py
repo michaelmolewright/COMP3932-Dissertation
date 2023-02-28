@@ -109,18 +109,21 @@ def fidelity(x):
 
 #Initial function for 2 Moons graph
 #returns 1 or -1 if value is above or below 0
-def u_initial(second_eigen, x):
+def u_initial(second_eigen, nodes):
     
     mean = 0
     for i in second_eigen:
         mean += i
     mean /= len(second_eigen)
 
-    val = second_eigen[x] - mean
-    if val <= 0:
-        return -1
-    else:
-        return 1
+    results = []
+    for node in nodes:
+        val = second_eigen[node] - mean
+        if val <= 0:
+            results.append(-1)
+        else:
+            results.append(1)
+    return results
 
 #returns the U(x) function for the nth iteration
 def u_nth(a_k, φ_k, x):
@@ -133,12 +136,12 @@ def u_nth(a_k, φ_k, x):
 
 #initialize a
 #a(0)k = int u(x) dot φk(x) dx.
-def a_init( nodes, eigenVectors):
+def a_init( nodes, eigenVectors, first_u):
     a = []
     total = 0
-    for k in range(len(eigenVectors)):
+    for k in range(0,20):
         for x in range(len(nodes)):
-            total += u_initial( eigenVectors[1], x) * eigenVectors[k][x]
+            total += first_u[x] * eigenVectors[k][x]
         a.append(total)
     return a
 
@@ -157,12 +160,12 @@ def a_nth(a, b, d, D, dt, epsilon, c):
 
 #initialize b
 #e b(0)k = int [u0(x)]^^3 dot φk(x) dx.
-def b_init(nodes, eigenVectors):
+def b_init(nodes, eigenVectors, first_u):
     b = []
     total = 0
-    for k in range(len(eigenVectors)):
+    for k in range(0,20):
         for x in range(len(nodes)):
-            total += u_initial( eigenVectors[1], x) * eigenVectors[k][x]
+            total += first_u[x] * eigenVectors[k][x]
         b.append(total)
     return b
 
@@ -171,7 +174,7 @@ def b_init(nodes, eigenVectors):
 def b_nth(nodes, eigenVectors, a_k):
     b = []
 
-    for k in range(len(eigenVectors)):
+    for k in range(0,20):
         total = 0
         for x in range(len(nodes)):
             total += (u_nth(a_k, eigenVectors, x)) * eigenVectors[k][x]
@@ -188,12 +191,12 @@ def d_init(λ):
 
 #d_nth
 
-def d_nth(nodes, eigenVectors, a_k):
+def d_nth(nodes, eigenVectors, a_k, first_u):
     d = []
-    for k in range(len(eigenVectors)):
+    for k in range(0,20):
         total = 0
         for x in range(len(nodes)):
-            total += (u_nth(a_k, eigenVectors, x) - u_initial(eigenVectors[1], x)) * eigenVectors[k][x]
+            total += (u_nth(a_k, eigenVectors, x) - first_u[x]) * eigenVectors[k][x]
         d.append(total)
     return d
 
@@ -222,8 +225,9 @@ def second_eigenvector_segmentation(φ_2):
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
     segmentation = []
-    a_k = a_init(nodes, eigenVectors)
-    b_k = b_init(nodes, eigenVectors)
+    first_u = u_initial(eigenVectors[1], nodes)
+    a_k = a_init(nodes, eigenVectors, first_u)
+    b_k = b_init(nodes, eigenVectors, first_u)
     d_k = d_init(eigenVectors)
     D_k = D_init(dt, eigenValues, c, epsilon)
     for iteration in range(0,iterations):
@@ -232,7 +236,7 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         print(iteration, " -- a_k Done")
         b_k = b_nth(nodes, eigenVectors, a_k )
         print(iteration, " -- b_k Done")
-        d_k = d_nth(nodes, eigenVectors, a_k )
+        d_k = d_nth(nodes, eigenVectors, a_k, first_u )
         print(iteration, " -- Done")
 
     

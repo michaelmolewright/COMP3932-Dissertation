@@ -8,8 +8,8 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n = 100
-X, Y = make_moons(n_samples=n, noise=0.05)
+n = 1000
+X, Y = make_moons(n_samples=n, noise=0.14)
 
 X = np.ndarray.tolist(X)
 Y = np.ndarray.tolist(Y)
