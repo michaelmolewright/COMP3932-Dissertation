@@ -66,6 +66,8 @@ def n_nearest_Neighbours(G, M):
             if n != i:
                 d = dist(G.nodes[i]['pos'][0] - G.nodes[n]['pos'][0] , G.nodes[i]['pos'][1] - G.nodes[n]['pos'][1])
                 G.add_edge(n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )))
+        if i % 10 == 0:
+            print(i, " -- working")
     return G
 
 '''
@@ -171,13 +173,13 @@ def b_init(nodes, eigenVectors, first_u):
 
 #b_nth
 #e b(0)k = int [u0(x)]^^3 dot φk(x) dx.
-def b_nth(nodes, eigenVectors, a_k):
+def b_nth(nodes, eigenVectors, results):
     b = []
 
     for k in range(0,20):
         total = 0
         for x in range(len(nodes)):
-            total += (u_nth(a_k, eigenVectors, x)) * eigenVectors[k][x]
+            total += results[x] * eigenVectors[k][x]
         b.append(total)
     return b
 
@@ -191,12 +193,12 @@ def d_init(λ):
 
 #d_nth
 
-def d_nth(nodes, eigenVectors, a_k, first_u):
+def d_nth(nodes, eigenVectors, results, first_u):
     d = []
     for k in range(0,20):
         total = 0
         for x in range(len(nodes)):
-            total += (u_nth(a_k, eigenVectors, x) - first_u[x]) * eigenVectors[k][x]
+            total += (results[x] - first_u[x]) * eigenVectors[k][x]
         d.append(total)
     return d
 
@@ -214,7 +216,6 @@ def segment(x):
         return -1
     else:
         return 1
-    
 
 def second_eigenvector_segmentation(φ_2):
     kmeans = KMeans(n_clusters=2, n_init=10)
@@ -222,6 +223,12 @@ def second_eigenvector_segmentation(φ_2):
     kmeans.fit(φ_2.reshape(-1, 1))
     
     return kmeans.labels_
+
+def get_all_u_nth(a_k, eigenVectors, nodes):
+    result = []
+    for node in nodes:
+        result.append(u_nth(a_k, eigenVectors, node))
+    return result
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
     segmentation = []
@@ -234,9 +241,10 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         print(iteration, " -- started")
         a_k = a_nth(a_k,b_k,d_k,D_k,dt,epsilon,c)
         print(iteration, " -- a_k Done")
-        b_k = b_nth(nodes, eigenVectors, a_k )
+        results = get_all_u_nth(a_k, eigenVectors, nodes)
+        b_k = b_nth(nodes, eigenVectors, results )
         print(iteration, " -- b_k Done")
-        d_k = d_nth(nodes, eigenVectors, a_k, first_u )
+        d_k = d_nth(nodes, eigenVectors, results, first_u )
         print(iteration, " -- Done")
 
     

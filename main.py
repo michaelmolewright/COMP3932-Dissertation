@@ -8,9 +8,10 @@ matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
-n = 1000
-X, Y = make_moons(n_samples=n, noise=0.14)
+n = 2000
+X, Y = make_moons(n_samples=n, noise=0.1)
 
+print("checkpoint 1")
 X = np.ndarray.tolist(X)
 Y = np.ndarray.tolist(Y)
 
@@ -25,7 +26,7 @@ for i in newArr:
     X.append(i[0])
     Y.append(i[1])
 
-
+print("checkpoint 2")
 moonsGraph = util.makeMoonsGraph(X)
 moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
 Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
@@ -137,7 +138,7 @@ for r in X:
 
 #seg = util.second_eigenvector_segmentation(eigens["vectors"][1])
 nodes = list(moonsGraph.nodes)
-seg = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 500)
+seg = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 200)
 plt.scatter(new_x, new_y, c=seg)
 plt.savefig("moons.png")
 
