@@ -233,8 +233,11 @@ def get_all_u_nth(a_k, eigenVectors, nodes):
     results = []
     results_cubed = []
     for node in nodes:
-        results.append( u_nth(a_k, eigenVectors, node) )
-        results_cubed.append( u_nth_cubed(a_k, eigenVectors, node) )
+        x = u_nth(a_k, eigenVectors, node)
+        results.append( x )
+        results_cubed.append( x**3 )
+        if node % 400 == 0:
+            print(x**3)
     return [results, results_cubed]
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
@@ -249,7 +252,10 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         a_k = a_nth( a_k, b_k, d_k, D_k, dt, epsilon, c )
 
         results = get_all_u_nth( a_k, eigenVectors, nodes )
-        b_k = b_nth( nodes, eigenVectors, results[1] )
+        if iteration < 5:
+            b_k = b_nth( nodes, eigenVectors, results[0] )
+        else:
+            b_k = b_nth( nodes, eigenVectors, results[1] )
 
         d_k = d_nth( nodes, eigenVectors, results[0], first_u )
 
