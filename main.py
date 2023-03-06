@@ -3,18 +3,23 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import helper as util
+import time
 
 matplotlib.use('Agg')
 
 from sklearn.datasets import make_moons
 from sklearn.cluster import KMeans, SpectralClustering
 n = 2000
-X, Y = make_moons(n_samples=n, noise=0.1)
 
-print("checkpoint 1")
+start = time.time()
+X, Y = make_moons(n_samples=n, noise=0.1)
+end = time.time()
+print(end - start," -- 1. Moons DataSet")
+
 X = np.ndarray.tolist(X)
 Y = np.ndarray.tolist(Y)
 
+start = time.time()
 newArr = []
 for i,x in enumerate(X):
     newArr.append([x,Y[i]])
@@ -26,10 +31,20 @@ for i in newArr:
     X.append(i[0])
     Y.append(i[1])
 
-print("checkpoint 2")
+end = time.time()
+print(end - start," -- 2. Sorting X and Y")
+
+
 moonsGraph = util.makeMoonsGraph(X)
+start = time.time()
 moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
+end = time.time()
+print(end - start," -- 3. Similarity Function")
+#moonsGraph = util.gaussian_weights(moonsGraph, 2)
+start = time.time()
 Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
+end = time.time()
+print(end - start," -- 4. Laplacian")
 #matrix.A returns matrix view
 
 #print(L.toarray())
@@ -44,11 +59,12 @@ Values = []
 Vectors = []
 Key = []
 '''
-
+start = time.time()
 eigens = util.sortEigens(eigvalues, eigVectors)
 #for i, val in enumerate(eigens["vectors"]):
   #  print(i, ": ", eigens["values"][i], val)
-
+end = time.time()
+print(end - start," -- 5. Eigen Sorting")
 
 c = 1
 epsilon = 2
@@ -138,7 +154,10 @@ for r in X:
 
 #seg = util.second_eigenvector_segmentation(eigens["vectors"][1])
 nodes = list(moonsGraph.nodes)
-seg = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 200)
+start = time.time()
+seg = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 500)
+end = time.time()
+print(end - start," -- 6. Segmentation")
 plt.scatter(new_x, new_y, c=seg)
 plt.savefig("moons.png")
 

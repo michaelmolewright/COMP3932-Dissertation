@@ -1,5 +1,7 @@
 import networkx as nx
 from sklearn.cluster import KMeans
+import random
+
 
 import matplotlib.pyplot as plt
 import matplotlib
@@ -10,13 +12,6 @@ def makeMoonsGraph(X):
     for i,node in enumerate(X):
         G.add_node(i, pos=(node[0],node[1]))
 
-    for i,node in enumerate(X):
-        for j in range(i+1,len(X)):
-            #dx = node[0] - X[j][0]
-            #dy = node[1] - X[j][1]
-            #dist = (dx**2 + dy**2)**0.5
-            w = 0 #2.781 ** ( -((dist ** 2)) / 2)
-            #G.add_edge(i,j)
     return G
 
 def findBestEigen(eigVecs, Correct_labels, X):
@@ -53,21 +48,25 @@ def n_nearest_Neighbours(G, M):
         init_pos = G.nodes[node]['pos']
         distances = []
         for n in list(G.nodes):
-            distances.append([dist(init_pos[0] - G.nodes[n]['pos'][0] , init_pos[1] - G.nodes[n]['pos'][1]), n])
-            distances.sort(key=sortingFunction)
-        all_distances.append([node, distances[M][0]] )
-        #for i in distances[:M]:
-          #  if node != i[1]:
-          #      G.add_edge(node, i[1], weight= 2.781 ** ( -((i[0] ** 2)) / 2))
+            distances.append(dist(init_pos[0] - G.nodes[n]['pos'][0] , init_pos[1] - G.nodes[n]['pos'][1]))
+        #distances.sort()
+        val = quickselect(distances, n)
+        all_distances.append([node, val] )
         node += 1
     all_distances.sort(key=sortingFunction)
-    for i in list(G.nodes):
-        for n in list(G.nodes):
+    for i in range(0,len(list(G.nodes))):
+        for n in range(i,len(list(G.nodes))):
             if n != i:
                 d = dist(G.nodes[i]['pos'][0] - G.nodes[n]['pos'][0] , G.nodes[i]['pos'][1] - G.nodes[n]['pos'][1])
                 G.add_edge(n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )))
-        if i % 10 == 0:
-            print(i, " -- working")
+    return G
+
+def gaussian_weights(G, τ):
+    for i in range(0,len(list(G.nodes))):
+        for j in range(i,len(list(G.nodes))):
+            if j != i:
+                d = dist(G.nodes[i]['pos'][0] - G.nodes[j]['pos'][0] , G.nodes[i]['pos'][1] - G.nodes[j]['pos'][1])
+                G.add_edge(i, j, weight= 2.781 ** ( -((d ** 2)) / τ ))
     return G
 
 '''
@@ -238,18 +237,33 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
     d_k = d_init(eigenVectors)
     D_k = D_init(dt, eigenValues, c, epsilon)
     for iteration in range(0,iterations):
-        print(iteration, " -- started")
+
         a_k = a_nth(a_k,b_k,d_k,D_k,dt,epsilon,c)
-        print(iteration, " -- a_k Done")
+
         results = get_all_u_nth(a_k, eigenVectors, nodes)
         b_k = b_nth(nodes, eigenVectors, results )
-        print(iteration, " -- b_k Done")
+
         d_k = d_nth(nodes, eigenVectors, results, first_u )
-        print(iteration, " -- Done")
+
 
     
     for node in nodes:
         segmentation.append(segment(u_nth(a_k, eigenVectors, node)))
-    for a in a_k:
-        print(a)
+
     return segmentation
+
+def quickselect(lst, n):
+    if len(lst) == 1:
+        return lst[0]
+
+    pivot = random.choice(lst)
+    lows = [x for x in lst if x < pivot]
+    highs = [x for x in lst if x > pivot]
+    pivots = [x for x in lst if x == pivot]
+
+    if n < len(lows):
+        return quickselect(lows, n)
+    elif n < len(lows) + len(pivots):
+        return pivots[0]
+    else:
+        return quickselect(highs, n - len(lows) - len(pivots))
