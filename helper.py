@@ -49,13 +49,13 @@ def n_nearest_Neighbours(G, M):
         distances = []
         for n in list(G.nodes):
             distances.append(dist(init_pos[0] - G.nodes[n]['pos'][0] , init_pos[1] - G.nodes[n]['pos'][1]))
-        #distances.sort()
-        val = quickselect(distances, n)
-        all_distances.append([node, val] )
+        distances.sort()
+        #val = quickselect(distances, M) #May not be much better
+        all_distances.append([node, distances[M]] )
         node += 1
-    all_distances.sort(key=sortingFunction)
+    #all_distances.sort(key=sortingFunction)
     for i in range(0,len(list(G.nodes))):
-        for n in range(i,len(list(G.nodes))):
+        for n in range(i+1,len(list(G.nodes))):
             if n != i:
                 d = dist(G.nodes[i]['pos'][0] - G.nodes[n]['pos'][0] , G.nodes[i]['pos'][1] - G.nodes[n]['pos'][1])
                 G.add_edge(n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )))
@@ -133,6 +133,12 @@ def u_nth(a_k, φ_k, x):
         total += a * φ_k[i][x]
     return total
 
+def u_nth_cubed(a_k, φ_k, x):
+    total = 0
+    for i, a in enumerate(a_k):
+        total += (a * φ_k[i][x])**3
+    return total
+
 #Initializing different starting variables
 
 #initialize a
@@ -206,7 +212,7 @@ def d_nth(nodes, eigenVectors, results, first_u):
 def D_init(dt, λ, c, epsilon):
     D = []
     for val in λ:
-        D.append(1 + (dt * ( (epsilon * val) + c)))
+        D.append(1 + ( dt * ( (epsilon * val) + c ) ) )
     return D
 
 
@@ -224,10 +230,12 @@ def second_eigenvector_segmentation(φ_2):
     return kmeans.labels_
 
 def get_all_u_nth(a_k, eigenVectors, nodes):
-    result = []
+    results = []
+    results_cubed = []
     for node in nodes:
-        result.append(u_nth(a_k, eigenVectors, node))
-    return result
+        results.append( u_nth(a_k, eigenVectors, node) )
+        results_cubed.append( u_nth_cubed(a_k, eigenVectors, node) )
+    return [results, results_cubed]
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
     segmentation = []
@@ -238,12 +246,12 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
     D_k = D_init(dt, eigenValues, c, epsilon)
     for iteration in range(0,iterations):
 
-        a_k = a_nth(a_k,b_k,d_k,D_k,dt,epsilon,c)
+        a_k = a_nth( a_k, b_k, d_k, D_k, dt, epsilon, c )
 
-        results = get_all_u_nth(a_k, eigenVectors, nodes)
-        b_k = b_nth(nodes, eigenVectors, results )
+        results = get_all_u_nth( a_k, eigenVectors, nodes )
+        b_k = b_nth( nodes, eigenVectors, results[1] )
 
-        d_k = d_nth(nodes, eigenVectors, results, first_u )
+        d_k = d_nth( nodes, eigenVectors, results[0], first_u )
 
 
     
