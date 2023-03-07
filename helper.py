@@ -218,7 +218,7 @@ def D_init(dt, λ, c, epsilon):
 
 def segment(x):
     if x <= 0:
-        return -1
+        return 0
     else:
         return 1
 
@@ -231,13 +231,30 @@ def second_eigenvector_segmentation(φ_2):
 
 def get_all_u_nth(a_k, eigenVectors, nodes):
     results = []
+    total = 0
     results_cubed = []
     for node in nodes:
         x = u_nth(a_k, eigenVectors, node)
         results.append( x )
-        results_cubed.append( x**3 )
-        if node % 400 == 0:
-            print(x**3)
+        results_cubed.append(x**3)
+        total += x
+
+    #Mean Constraint      int u(x)dx = 0,
+    if total < -10:
+        val = (total) / len(nodes)
+        for r in range(0, len(results)):
+            results[r] = results[r] - val
+            results_cubed.append(results[r]**3)
+    elif total > 10:
+        val = (total) / len(nodes)
+        for r in range(0, len(results)):
+            results[r] = results[r] - val
+            results_cubed.append(results[r]**3)
+    else:
+        for r in range(0, len(results)):
+            results_cubed.append(results[r]**3)
+
+
     return [results, results_cubed]
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
@@ -252,12 +269,13 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         a_k = a_nth( a_k, b_k, d_k, D_k, dt, epsilon, c )
 
         results = get_all_u_nth( a_k, eigenVectors, nodes )
-        if iteration < 5:
+        if iteration < 10:
             b_k = b_nth( nodes, eigenVectors, results[0] )
         else:
             b_k = b_nth( nodes, eigenVectors, results[1] )
 
         d_k = d_nth( nodes, eigenVectors, results[0], first_u )
+        
 
 
     
@@ -266,18 +284,3 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
     return segmentation
 
-def quickselect(lst, n):
-    if len(lst) == 1:
-        return lst[0]
-
-    pivot = random.choice(lst)
-    lows = [x for x in lst if x < pivot]
-    highs = [x for x in lst if x > pivot]
-    pivots = [x for x in lst if x == pivot]
-
-    if n < len(lows):
-        return quickselect(lows, n)
-    elif n < len(lows) + len(pivots):
-        return pivots[0]
-    else:
-        return quickselect(highs, n - len(lows) - len(pivots))
