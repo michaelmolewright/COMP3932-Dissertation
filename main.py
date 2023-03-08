@@ -4,21 +4,12 @@ import matplotlib
 
 import helper as util
 import twoMoonsSeg as twoMoon
+import imageSeg as img
+#matplotlib.use('Agg')
 
-matplotlib.use('Agg')
-
-twoMoon.test_harness()
+#twoMoon.test_harness()
 
 
-''' HOW TO MAKE THE VISUALISATION
-new_x = []
-new_y = []
+#twoMoon.run_test_with_plot(1000, 0.1, 1, 2, 200)
 
-for r in X:
-    new_x.append(r[0])
-    new_y.append(r[1])
-
-print(end - start," -- 6. Segmentation")
-plt.scatter(new_x, new_y, c=seg)
-plt.savefig("moons.png")
-'''
+img.messing()
