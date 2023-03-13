@@ -236,16 +236,17 @@ def get_all_u_nth(a_k, eigenVectors, nodes):
     for node in nodes:
         x = u_nth(a_k, eigenVectors, node)
         results.append( x )
-        results_cubed.append(x**3)
+        #results_cubed.append(x**3)
         total += x
 
     #Mean Constraint      int u(x)dx = 0,
-    if total < -10:
+    '''
+    if total < -3:
         val = (total) / len(nodes)
         for r in range(0, len(results)):
             results[r] = results[r] - val
             results_cubed.append(results[r]**3)
-    elif total > 10:
+    elif total > 3:
         val = (total) / len(nodes)
         for r in range(0, len(results)):
             results[r] = results[r] - val
@@ -253,7 +254,7 @@ def get_all_u_nth(a_k, eigenVectors, nodes):
     else:
         for r in range(0, len(results)):
             results_cubed.append(results[r]**3)
-
+    '''
 
     return [results, results_cubed]
 
@@ -269,7 +270,7 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         a_k = a_nth( a_k, b_k, d_k, D_k, dt, epsilon, c )
 
         results = get_all_u_nth( a_k, eigenVectors, nodes )
-        if iteration < 10:
+        if iteration < 1000:
             b_k = b_nth( nodes, eigenVectors, results[0] )
         else:
             b_k = b_nth( nodes, eigenVectors, results[1] )

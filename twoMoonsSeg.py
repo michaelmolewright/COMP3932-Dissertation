@@ -99,12 +99,12 @@ def test_harness():
     print("Average Segmentation Accuracy (φ_2) -- ", np.mean(results["seg2Accuracy"]))
 
 
-def run_test_with_plot(n, dt, c, ε, iterations):
+def run_test_with_plot(n, dt, c, ε, iterations, path):
     #Placeholder for Graph Time, segmentation Time and segmentation accuracy
     results = [] 
     print("Started")
     ## ----------- DATASET --------------##
-    X, Y = make_moons(n_samples=n, noise=0.15)
+    X, Y = make_moons(n_samples=n, noise=0.1)
     ## ----------------------------------##
 
 
@@ -113,6 +113,7 @@ def run_test_with_plot(n, dt, c, ε, iterations):
 
     moonsGraph = util.makeMoonsGraph(X)
     moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
+    print(moonsGraph.number_of_edges())
 
     ## ----------------------------------##
 
@@ -171,8 +172,10 @@ def run_test_with_plot(n, dt, c, ε, iterations):
         new_x.append(r[0])
         new_y.append(r[1])
 
+    print(len(X), len(new_x) )
     plt.scatter(new_x, new_y, c=seg1)
-    plt.savefig("./plots/GL_Seg.png")
+    #plt.savefig("./plots/GL_Seg.png")
+    plt.savefig(path)
 
     plt.scatter(new_x, new_y, c=seg2)
     plt.savefig("./plots/Eigen2_Seg.png")
