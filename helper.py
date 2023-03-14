@@ -2,7 +2,7 @@ import networkx as nx
 from sklearn.cluster import KMeans
 import random
 
-
+from sklearn.datasets import make_moons
 import matplotlib.pyplot as plt
 import matplotlib
 
@@ -285,3 +285,19 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
     return segmentation
 
+
+def plot_two_moons(n, dev, path):
+    matplotlib.use('Agg')
+
+    X, Y = make_moons(n_samples=n, noise=dev)
+    new_x = []
+    new_y = []
+    col = []
+
+    for r in X:
+        new_x.append(r[0])
+        new_y.append(r[1])
+        col.append([0.02,0.02,0.02])
+
+    plt.scatter(new_x, new_y, c=col, marker=".")
+    plt.savefig(path)
