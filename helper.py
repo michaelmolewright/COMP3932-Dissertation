@@ -285,6 +285,33 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
     return segmentation
 
+def shi_malek_segmentation(k, eigenvectors, nodes):
+
+    X = []
+    for i in range(1, k+1):
+        for j, value in enumerate(eigenvectors[i]):
+            if i == 1:
+                X.append([value])
+            else:
+                X[j].append(value)
+
+    
+    for i, row in enumerate(X):
+        total = sum_squared(row)
+        for j, val in enumerate(row):
+            X[i][j] = val / (total**0.5)
+
+    kmeans = KMeans(n_clusters=2, n_init=10)
+
+    kmeans.fit(X)
+
+    return kmeans.labels_
+
+def sum_squared(arr):
+    total = 0
+    for i in arr:
+        total += i**2
+    return total
 
 def plot_two_moons(n, dev, path):
     matplotlib.use('Agg')

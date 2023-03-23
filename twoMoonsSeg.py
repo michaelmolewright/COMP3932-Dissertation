@@ -98,7 +98,6 @@ def test_harness():
     print("Average Segmentation Time (φ_2)     -- ", np.mean(results["seg2Time"]))
     print("Average Segmentation Accuracy (φ_2) -- ", np.mean(results["seg2Accuracy"]))
 
-
 def run_test_with_plot(n, dt, c, ε, iterations, path):
     #Placeholder for Graph Time, segmentation Time and segmentation accuracy
     results = [] 
@@ -189,3 +188,30 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
     print("Segmentation Accuracy (φ_2) -- ", accuracy2)
     print("PLEASE SEE PLOT FOLDER FOR PLOT RESULTS")
     
+
+def playground(n, k):
+    X, Y = make_moons(n_samples=n, noise=0.1)
+
+    moonsGraph = util.makeMoonsGraph(X)
+    moonsGraph = util.n_nearest_Neighbours(moonsGraph,10)
+
+    Lnorm = nx.normalized_laplacian_matrix(moonsGraph)
+    eigvalues, eigVectors = np.linalg.eig(Lnorm.A)
+    eigens = util.sortEigens(eigvalues, eigVectors)
+    print("Graphs + Eigens Complete")
+
+    seg = util.shi_malek_segmentation(k, eigens["vectors"], X)
+
+    matplotlib.use('Agg')
+    new_x = []
+    new_y = []
+
+    for r in X:
+        new_x.append(r[0])
+        new_y.append(r[1])
+
+
+    plt.scatter(new_x, new_y, c=seg)
+    #plt.savefig("./plots/GL_Seg.png")
+    plt.savefig("./plots/SHI_Seg.png")
+
