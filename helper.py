@@ -285,7 +285,7 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
     return segmentation
 
-def shi_malek_segmentation(k, eigenvectors, nodes):
+def shi_malek_segmentation(k, eigenvectors):
 
     X = []
     for i in range(1, k+1):
@@ -299,9 +299,12 @@ def shi_malek_segmentation(k, eigenvectors, nodes):
     for i, row in enumerate(X):
         total = sum_squared(row)
         for j, val in enumerate(row):
+            if total == 0:
+                total = 1
             X[i][j] = val / (total**0.5)
+    
 
-    kmeans = KMeans(n_clusters=2, n_init=10)
+    kmeans = KMeans(n_clusters=2)
 
     kmeans.fit(X)
 
@@ -328,3 +331,21 @@ def plot_two_moons(n, dev, path):
 
     plt.scatter(new_x, new_y, c=col, marker=".")
     plt.savefig(path)
+
+
+def perona_freeman_segmentation(k, eigenvectors):
+
+    X = []
+    for i in range(1, k+1):
+        for j, value in enumerate(eigenvectors[i]):
+            if i == 1:
+                X.append([value])
+            else:
+                X[j].append(value)
+
+
+    kmeans = KMeans(n_clusters=2)
+
+    kmeans.fit(X)
+
+    return kmeans.labels_
