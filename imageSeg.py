@@ -2,6 +2,8 @@ from PIL import Image
 import networkx as nx
 import helper as util
 import numpy as np
+from sklearn.preprocessing import normalize
+from scipy.sparse.linalg import eigsh
 # Open image using Image module
 
 def messing():
@@ -17,6 +19,7 @@ def messing():
     print("graph made")
     Lnorm = nx.normalized_laplacian_matrix(G)
     #affinity = nx.adjacency_matrix(G, weight="weight")
+    #aff_norm = normalize(affinity, norm="l1")
     
     print("normalized_laplacian_matrix made")
     eigvalues, eigVectors = np.linalg.eigh(Lnorm.A)
@@ -25,6 +28,8 @@ def messing():
     
     print("eigvalues, eigVectors made")
     eigens = util.sortEigens(eigvalues, eigVectors)
+    E,V = eigsh(Lnorm, 4, which = 'SM')
+    E = E[:,np.newaxis]
     
     print("sortEigens done")
 
@@ -35,7 +40,7 @@ def messing():
         nodes.append(i)
 
     print("second_eigenvector_segmentation done")
-    seg2 = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], 0.1, 1, 2, 500)
+    seg2 = util.ginzburg_landau_segmentation_two(nodes, E, V, 0.1, 1, 2, 500)
     print("ginzburg_landau_segmentation done")
     seg3 = util.shi_malek_segmentation(10, eigens["vectors"])
     print("shi_malek_segmentation done")
@@ -99,7 +104,7 @@ def create_graph_fully_connected(pixels, w, h, r, sig_i, sig_x):
                     I2 = (RGB2[0] + RGB2[1] + RGB2[2]) /3
 
                     new_d = I1 - I2
-                    distanceVal = 2.781 ** ( -((pixels_away ** 2)) / sig_x )
+                    distanceVal = (pixels_away ** 2) / sig_x
                     colourVal = 2.781 ** ( -((new_d ** 2)) / sig_i )
                     G.add_edge(i, j, weight = colourVal * distanceVal )
         if i %100 == 0:

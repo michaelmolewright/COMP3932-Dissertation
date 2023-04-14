@@ -1,5 +1,6 @@
 import helper as util
 from sklearn.datasets import make_moons
+from scipy.sparse.linalg import eigsh
 import numpy as np
 import networkx as nx
 import time
@@ -122,7 +123,14 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
     eigvalues, eigVectors = np.linalg.eig(Lnorm.A)
     eigens = util.sortEigens(eigvalues, eigVectors)
     end1 = time.time()
+
+    E,V = eigsh(Lnorm, 20, which = 'SM')
+    E = E[:,np.newaxis]
     print("Graphs + Eigens Complete")
+
+    Eval = eigens["values"][:20]
+    Evec = np.asarray(eigens["vectors"][:20])
+    Evec = Evec.T
     ## ----------------------------------##
 
     ## ----------SEGMENTATION------------##
@@ -130,7 +138,9 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
 
     start2 = time.time()
 
-    seg1 = util.ginzburg_landau_segmentation(nodes, eigens["values"], eigens["vectors"], dt, c, ε, iterations)
+    seg1 = util.ginzburg_landau_segmentation_two(nodes, E, V, dt, c, ε, iterations)
+    #seg1 = util.gl_zero_means_eig(V,E, .1, V[:,1])
+    #seg1 = util.ginzburg_landau_segmentation(nodes, eigens["values"],     eigens["vectors"], dt, c, ε, iterations)
     print("GL segmentation complete")
 
     end2 = time.time()
@@ -173,8 +183,7 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
 
     print(len(X), len(new_x) )
     plt.scatter(new_x, new_y, c=seg1)
-    #plt.savefig("./plots/GL_Seg.png")
-    plt.savefig(path)
+    plt.savefig("./plots/GL_Seg.png")
 
     plt.scatter(new_x, new_y, c=seg2)
     plt.savefig("./plots/Eigen2_Seg.png")

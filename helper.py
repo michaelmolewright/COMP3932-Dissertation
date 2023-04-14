@@ -1,6 +1,7 @@
 import networkx as nx
 from sklearn.cluster import KMeans
 import random
+import numpy as np
 
 from sklearn.datasets import make_moons
 import matplotlib.pyplot as plt
@@ -124,7 +125,7 @@ def u_initial(second_eigen, nodes):
             results.append(-1)
         else:
             results.append(1)
-    return results
+    return np.asarray(results)
 
 #returns the U(x) function for the nth iteration
 def u_nth(a_k, φ_k, x):
@@ -284,6 +285,52 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
         segmentation.append(segment(u_nth(a_k, eigenVectors, node)))
 
     return segmentation
+
+
+def _diffusion_step_eig(v,V,E,dt):
+
+    if len(v.shape) > 1:
+        return np.dot(V,np.divide(np.dot(V.T,v),(1+dt*E)))
+    else:
+        u_new = np.dot(V,np.divide(np.dot(V.T,v[:,np.newaxis]),(1+dt*E)))
+        return u_new.ravel()
+
+def _gl_forward_step(u_old,dt,eps):
+    v = u_old-dt/eps*(np.power(u_old,3)-u_old) #double well explicit step
+    return v
+
+
+def ginzburg_landau_segmentation_two(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
+    segmentation = []
+    #u_init = u_initial(eigenVectors[:, 1], nodes)
+    u_init = eigenVectors[:, 1]
+
+    i = 0
+    u_new = u_init.copy()
+    u_diff = 1
+    tol = 0.0001
+
+    while (i<iterations) and (u_diff > tol):
+        u_old = u_init.copy()
+        w = u_old.copy()
+        for k in range(10): # diffuse and threshold for a while
+            v = _diffusion_step_eig(w,eigenVectors,eigenValues,epsilon*dt)
+            w = v-np.mean(v) # force the 0 mean
+        #v = _gl_forward_step(u_old,dt, epsilon)
+        #v = v-np.mean(v)
+        u_new = _gl_forward_step(w,dt, epsilon)
+        u_diff = (abs(u_new-u_old)).sum()
+
+        i = i+1
+    
+    for j in u_new:
+        segmentation.append(segment(j))
+    labels = u_new
+    labels[labels<0] = -1
+    labels[labels>0] = 1
+
+    print(i, "  ", u_diff)
+    return labels
 
 def shi_malek_segmentation(k, eigenvectors):
 
