@@ -28,8 +28,12 @@ def messing():
     
     print("eigvalues, eigVectors made")
     eigens = util.sortEigens(eigvalues, eigVectors)
-    E,V = eigsh(Lnorm, 4, which = 'SM')
-    E = E[:,np.newaxis]
+    #E,V = eigsh(Lnorm, 4, which = 'SM')
+    #E = E[:,np.newaxis]
+    Eval = np.asarray(eigens["values"][:20])
+    Evec = np.asarray(eigens["vectors"][:20])
+    Evec = Evec.T
+    Eval = Eval[:,np.newaxis]
     
     print("sortEigens done")
 
@@ -40,7 +44,7 @@ def messing():
         nodes.append(i)
 
     print("second_eigenvector_segmentation done")
-    seg2 = util.ginzburg_landau_segmentation_two(nodes, E, V, 0.1, 1, 2, 500)
+    seg2 = util.ginzburg_landau_segmentation_two(nodes, Eval, Evec, 0.1, 1, 2, 500)
     print("ginzburg_landau_segmentation done")
     seg3 = util.shi_malek_segmentation(10, eigens["vectors"])
     print("shi_malek_segmentation done")
@@ -128,7 +132,7 @@ def make_seg_img(path, w, h, segment):
     for x in range(w):
         for y in range(h):
             index = y * w + x
-            if segment[index] == 0:
+            if segment[index] == 1:
                 img.putpixel((x, y), (255, 255, 255))
             else:
                 img.putpixel((x, y), (0, 0, 0))

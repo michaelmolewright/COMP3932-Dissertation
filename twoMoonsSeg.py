@@ -124,13 +124,16 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
     eigens = util.sortEigens(eigvalues, eigVectors)
     end1 = time.time()
 
-    E,V = eigsh(Lnorm, 20, which = 'SM')
-    E = E[:,np.newaxis]
+    #E,V = eigsh(Lnorm, 20, which = 'SM')
+    #E = E[:,np.newaxis]
     print("Graphs + Eigens Complete")
 
-    Eval = eigens["values"][:20]
+    Eval = np.asarray(eigens["values"][:20])
     Evec = np.asarray(eigens["vectors"][:20])
     Evec = Evec.T
+    Eval = Eval[:,np.newaxis]
+    print(Evec.shape)
+    print(Eval.shape)
     ## ----------------------------------##
 
     ## ----------SEGMENTATION------------##
@@ -138,7 +141,7 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
 
     start2 = time.time()
 
-    seg1 = util.ginzburg_landau_segmentation_two(nodes, E, V, dt, c, ε, iterations)
+    seg1 = util.ginzburg_landau_segmentation_two(nodes, Eval, Evec, dt, c, ε, iterations)
     #seg1 = util.gl_zero_means_eig(V,E, .1, V[:,1])
     #seg1 = util.ginzburg_landau_segmentation(nodes, eigens["values"],     eigens["vectors"], dt, c, ε, iterations)
     print("GL segmentation complete")

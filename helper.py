@@ -396,3 +396,15 @@ def perona_freeman_segmentation(k, eigenvectors):
     kmeans.fit(X)
 
     return kmeans.labels_
+
+def plot_two_moons( data, seg, path ):
+    matplotlib.use('Agg')
+    new_x = []
+    new_y = []
+
+    for r in data:
+        new_x.append(r[0])
+        new_y.append(r[1])
+
+    plt.scatter(new_x, new_y, c=seg)
+    plt.savefig(path)
