@@ -52,7 +52,10 @@ class segment:
         return kmeans.labels_
 
     def perona_freeman_method(self, k):
+        #X = np.asarray(self.eigens["vectors"][:k])
+        #X = X.T
         X = []
+        
         for i in range(1, k+1):
             for j, value in enumerate(self.eigens["vectors"][i]):
                 if i == 1:
@@ -60,7 +63,7 @@ class segment:
                 else:
                     X[j].append(value)
 
-        kmeans = KMeans(n_clusters=2)
+        kmeans = KMeans(n_clusters=2, n_init=10)
 
         kmeans.fit(X)
 

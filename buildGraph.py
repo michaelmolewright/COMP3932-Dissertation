@@ -1,4 +1,6 @@
 import networkx as nx
+import numpy as np
+import math
 
 def dist(A, B):
     '''
@@ -19,8 +21,8 @@ def cosine(A,B):
         part2 += A[i]**2
         part3 += B[i]**2
 
-
-    return part1 / ( part2**0.5 * part3**0.5 )
+    cos = part1 / ( part2**0.5 * part3**0.5 )
+    return cos + 1.5 #need to add an offest to protect against negative weights
 
 class graphBuilder:
     """
@@ -96,8 +98,8 @@ class graphBuilder:
             for j in range(i,len(list(self.graph.nodes))):
                 self.graph.add_edge( i, j, weight = cosine(self.data[i],self.data[j]) )
 
-    def gaussian_image(self, w, r, sig_i, sig_x):
-        
+    def gaussian_image(self, w, r, sig_gaus, sig_dist, gtype="intesity"):
+        self.graph = nx.create_empty_copy(self.graph)
         for i, RGB1 in enumerate(self.data):
             for j, RGB2 in enumerate(self.data):
                 if j > i:
@@ -109,16 +111,34 @@ class graphBuilder:
                     pixels_away = ( (x2-x1)**2 + (y2-y1)**2 )**0.5
 
                     if pixels_away < r:
-                        I1 = (RGB1[0] + RGB1[1] + RGB1[2]) /3
-                        I2 = (RGB2[0] + RGB2[1] + RGB2[2]) /3
+                        if gtype == "intesity":
+                            I1 = (RGB1[0] + RGB1[1] + RGB1[2]) /3
+                            I2 = (RGB2[0] + RGB2[1] + RGB2[2]) /3
 
-                        new_d = I1 - I2
-                        distanceVal = (pixels_away ** 2) / sig_x
-                        colourVal = 2.781 ** ( -((new_d ** 2)) / sig_i )
-                        
-                        
-                        self.graph.add_edge(i, j, weight = colourVal * distanceVal )
+                            new_d = abs(I1 - I2) / 10 # has to be absolout to avoid complex eigens
+                            distanceVal = (pixels_away ** 2) / sig_dist
+                            colourVal = math.exp( -((new_d)) / sig_gaus )
+                            yo = colourVal * distanceVal
 
+                            self.graph.add_edge(i, j, weight = yo )
+                        elif gtype == "colour":
+                            new_d = dist(RGB1, RGB2) / 20
+                            distanceVal = (pixels_away ** 2) / sig_dist
+                            colourVal = math.exp( -((new_d)) / sig_gaus )
+                            yo = colourVal * distanceVal
+
+                            self.graph.add_edge(i, j, weight = yo )
+                        elif gtype == "cosine":
+                            new_d = cosine(RGB1, RGB2) * 25
+                            distanceVal = (pixels_away ** 2) / sig_dist
+                            colourVal = math.exp( -((new_d)) / sig_gaus )
+                            yo = colourVal * distanceVal
+
+                            self.graph.add_edge(i, j, weight = yo )
+                        
+                        else:
+                            print("not a valid gtype -- try again")
+                            return
 
     
 
