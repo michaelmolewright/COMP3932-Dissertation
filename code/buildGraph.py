@@ -22,7 +22,7 @@ def cosine(A,B):
         part3 += B[i]**2
 
     cos = part1 / ( part2**0.5 * part3**0.5 )
-    return cos + 1.5 #need to add an offest to protect against negative weights
+    return cos #need to add an offest to protect against negative weights
 
 class graphBuilder:
     """
@@ -62,7 +62,7 @@ class graphBuilder:
             for j in range(i,len(list(self.graph.nodes))):
                 if j != i:
                     d = dist(self.data[i], self.data[j])
-                    self.graph.add_edge(i, j, weight= 2.781 ** ( -((d ** 2)) / τ ))
+                    self.graph.add_edge(i, j, weight= 2.781 ** ( -((d ** 2)) / 2 * τ**2 ))
 
     def local_scaling(self, M):
         '''
@@ -95,8 +95,8 @@ class graphBuilder:
         self.graph = nx.create_empty_copy(self.graph)
 
         for i in range(0,len(list(self.graph.nodes))):
-            for j in range(i,len(list(self.graph.nodes))):
-                self.graph.add_edge( i, j, weight = cosine(self.data[i],self.data[j]) )
+            for j in range(i+1,len(list(self.graph.nodes))):
+                self.graph.add_edge( i, j, weight = math.exp( cosine(self.data[i],self.data[j]) ) ) #math.exp(cosine(self.data[i],self.data[j]))
 
     def gaussian_image(self, w, r, sig_gaus, sig_dist, gtype="intesity"):
         self.graph = nx.create_empty_copy(self.graph)

@@ -25,7 +25,6 @@ class segment:
     --Fielder Method
     --Perona + Freeman Method
     --Convex Splitting Scheme for GL
-
     """
 
     def setup(self, graph, laptype="normalized"):
@@ -52,40 +51,43 @@ class segment:
         return kmeans.labels_
 
     def perona_freeman_method(self, k):
-        #X = np.asarray(self.eigens["vectors"][:k])
-        #X = X.T
-        X = []
-        
+        X = np.asarray(self.eigens["vectors"][:k])
+        X = X.T
+        #new_x = []
+        #for i in X:
+            #new_x.append(np.mean(i))
+        #X = []
+        '''
         for i in range(1, k+1):
             for j, value in enumerate(self.eigens["vectors"][i]):
                 if i == 1:
                     X.append([value])
                 else:
                     X[j].append(value)
-
+        '''
+        #new_x = np.asarray(new_x)
         kmeans = KMeans(n_clusters=2, n_init=10)
-
         kmeans.fit(X)
 
         return kmeans.labels_
     
     def gl_method(self, dt, c, epsilon, iterations, k):
-
+        
+        u_init = self.eigens["vectors"][1]
         
         Eval = np.asarray(self.eigens["values"][:k])
         Evec = np.asarray(self.eigens["vectors"][:k])
         eigenVectors = Evec.T
         eigenValues = Eval[:,np.newaxis]
 
-        u_init = eigenVectors[:, 1]
 
         i = 0
         u_new = u_init.copy()
         u_diff = 1
-        tol = 0.0001
+        tol = 0.00001
 
         while (i<iterations) and (u_diff > tol):
-            u_old = u_init.copy()
+            u_old = u_new.copy()
             w = u_old.copy()
             for k in range(10):
                 v = _diffusion_step_eig(w,eigenVectors,eigenValues,epsilon*dt)

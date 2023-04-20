@@ -7,6 +7,9 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib
 
+import buildGraph as bd
+import segmentation as sgm
+
 def run_test(n, dt, c, ε, iterations):
 
     #Placeholder for Graph Time, segmentation Time and segmentation accuracy
@@ -200,7 +203,6 @@ def run_test_with_plot(n, dt, c, ε, iterations, path):
     print("Segmentation Accuracy (φ_2) -- ", accuracy2)
     print("PLEASE SEE PLOT FOLDER FOR PLOT RESULTS")
     
-
 def playground(n, k):
     X, Y = make_moons(n_samples=n, noise=0.1)
 
@@ -223,7 +225,97 @@ def playground(n, k):
         new_y.append(r[1])
 
 
-    plt.scatter(new_x, new_y, c=seg)
+    plt.scatter(new_x, new_y, c=seg, marker=".")
     #plt.savefig("./plots/GL_Seg.png")
     plt.savefig("./plots/SHI_Seg.png")
+
+def plot_two_moons(X, seg, path):
+    matplotlib.use('Agg')
+    plt.cla()
+    new_x = []
+    new_y = []
+
+    for r in X:
+        new_x.append(r[0])
+        new_y.append(r[1])
+    
+    new_c = []
+
+    for val in seg:
+        if val == 1:
+            new_c.append("red")
+        else:
+            new_c.append("green")
+
+    print(len(X), len(new_x) )
+    plt.scatter(new_x, new_y, c=new_c, marker=".")
+    plt.savefig(path)
+
+def accuracy(trueVals, predictedVals):
+    accuracies = []
+    totalRight = 0
+    for i in range(len(trueVals)):
+        if trueVals[i] == predictedVals[i]:
+            totalRight += 1
+    acc = totalRight / len(trueVals)
+    if acc < 0.5:
+        acc = 1-acc
+    return acc
+
+    
+def experiment(samples, noise, n, vals, plot=False):
+    
+    results = {
+        "totalT" : [],
+        "graphT" : [],
+        "lapT" : [],
+        "segT" : [],
+        "acc_scores" : []
+    }
+
+    for i in range(n):
+        X, Y = make_moons(n_samples=samples, noise=noise)
+        graphBuilder = bd.graphBuilder()
+        segmenter = sgm.segment()
+        
+        #---------------Graph-------------------#
+        
+        graphBuilder.setup(X)
+
+        graphTimeStart = time.time()
+        graphBuilder.local_scaling(10)
+        graphTimeEnd = time.time()
+
+        lapTimeStart = time.time()
+        segmenter.setup(graphBuilder.graph)
+        lapTimeEnd = time.time()
+
+        segTimeStart = time.time()
+        seg = segmenter.gl_method(0.1,2,2,500,20)
+        segTimeEnd = time.time()
+
+        acc = accuracy(Y, seg)   
+        #---------------------------------------#    
+        results["totalT"].append(segTimeEnd - graphTimeStart)
+        results["graphT"].append(graphTimeEnd - graphTimeStart)
+        results["lapT"].append(lapTimeEnd - lapTimeStart)
+        results["segT"].append(segTimeEnd - segTimeStart)
+        results["acc_scores"].append(acc)
+
+    plot_two_moons(X, seg, '../plots/fieldler_two_moons.jpg')
+
+    totalT = np.mean(results["totalT"])
+    graphT = np.mean(results["graphT"])
+    lapT = np.mean(results["lapT"])
+    segT = np.mean(results["segT"])
+    acc_scores = np.mean(results["acc_scores"])
+    
+    print("Noise        -- ", noise)
+    #print("Value        -- ", val)
+    print("totalT       -- ", totalT)
+    print("graphT       -- ", graphT)
+    #print("lapT         -- ", lapT )
+    #print("segT         -- ", segT )
+    print("acc_scores   -- ", acc_scores)
+    print()
 

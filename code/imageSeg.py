@@ -4,6 +4,7 @@ import helper as util
 import numpy as np
 from sklearn.preprocessing import normalize
 from scipy.sparse.linalg import eigsh
+import random
 
 import buildGraph as bd
 import segmentation as sgm
@@ -252,7 +253,56 @@ def segment_image(img_path, folder="../image_segmentations/"):
     remake_seg_image(imgOriginal, img2, factor, folder + 'fielder_method_combined.jpg')
     remake_seg_image(imgOriginal, img3, factor, folder + 'perona_freeman_method_combined.jpg')
 
+def segment_image_tester(img_path, iter, folder="../image_segmentations/"):
+    '''
+    Function to take an image and perform all three segmentations on it
 
-
-
+    Will return timing for each segmentation
+    '''
     
+    imgOriginal = Image.open(img_path)
+    w,h = imgOriginal.size
+
+    factor = w//50 #arbitrary number for subsampling
+
+    #subsampleImage
+    subImg = subsample(imgOriginal, factor)
+
+    subWidth, subHeight = subImg.size
+    
+    pixels = list(subImg.getdata())
+
+    #Setup graphBuilder and the Segmenter objects
+    print("Starting...")
+    graphBuilder = bd.graphBuilder()
+    segmenter = sgm.segment()
+
+    #---------BUILD-GRAPH-&-COMPUTE-EIGENS------------#
+    graphBuilder.setup(pixels)
+
+    for i in range(iter):
+        x1 = random.random() * 3
+        x2 = random.random() * 20
+        r = random.randint(5,20)
+
+        print('r=',r, ', sig_i=',x1,', sig_x=',x2)
+        graphBuilder.gaussian_image(subWidth, r, x1, x2)
+        segmenter.setup(graphBuilder.graph)
+        print("Graphs + Eigens Done")
+        #-------------------------------------------------#
+
+        seg1 = segmenter.gl_method(0.1, 2, 2.9, 500, 20)
+        img1 = make_seg_img(folder + 'gl_method_binary.jpg', subWidth, subHeight, seg1)
+
+        seg2 = segmenter.fielder_method()
+        img2 = make_seg_img(folder + 'fielder_method_binary.jpg', subWidth, subHeight, seg2)
+
+        seg3 = segmenter.perona_freeman_method(8)
+        img3 = make_seg_img(folder + 'perona_freeman_method_binary.jpg', subWidth, subHeight, seg3)
+        print("Segmentations Done")
+
+        remake_seg_image(imgOriginal, img1, factor, folder + 'gl_method_combined.jpg')
+        remake_seg_image(imgOriginal, img2, factor, folder + 'fielder_method_combined.jpg')
+        remake_seg_image(imgOriginal, img3, factor, folder + 'perona_freeman_method_combined.jpg')
+        print("Images Made Done")
+

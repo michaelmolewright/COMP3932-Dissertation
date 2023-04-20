@@ -408,3 +408,12 @@ def plot_two_moons( data, seg, path ):
 
     plt.scatter(new_x, new_y, c=seg)
     plt.savefig(path)
+
+def plot_bar(variables, vals, path):
+    matplotlib.use('Agg')
+
+    plt.xlabel('Similarity Function')
+    plt.ylabel('Time (s)')
+    
+    plt.bar(variables, vals, color="gray")
+    plt.savefig("../plots/" + path)
