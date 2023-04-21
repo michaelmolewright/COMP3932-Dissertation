@@ -4,16 +4,16 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-def _diffusion_step_eig(v,V,E,dt):
+def _diffusion_step_eig(v, V, E, dt, c, epsilon):
 
     if len(v.shape) > 1:
-        return np.dot(V,np.divide(np.dot(V.T,v),(1+dt*E)))
+        return np.dot(V,np.divide(np.dot(V.T,v),(1+dt* epsilon *E )))
     else:
-        u_new = np.dot(V,np.divide(np.dot(V.T,v[:,np.newaxis]),(1+dt*E)))
+        u_new = np.dot(V,np.divide(np.dot(V.T,v[:,np.newaxis]),(1+dt* epsilon *E)))
         return u_new.ravel()
 
 def _gl_forward_step(u_old,dt,eps):
-    v = u_old-dt/eps*(np.power(u_old,3)-u_old) #double well explicit step
+    v = u_old-dt/eps*( np.power(u_old,3)  - u_old) #double well explicit step
     return v
 
 
@@ -71,12 +71,12 @@ class segment:
 
         return kmeans.labels_
     
-    def gl_method(self, dt, c, epsilon, iterations, k):
+    def gl_method(self, dt, c, epsilon, iterations, eigs):
         
         u_init = self.eigens["vectors"][1]
         
-        Eval = np.asarray(self.eigens["values"][:k])
-        Evec = np.asarray(self.eigens["vectors"][:k])
+        Eval = np.asarray(self.eigens["values"][:eigs])
+        Evec = np.asarray(self.eigens["vectors"][:eigs])
         eigenVectors = Evec.T
         eigenValues = Eval[:,np.newaxis]
 
@@ -89,18 +89,20 @@ class segment:
         while (i<iterations) and (u_diff > tol):
             u_old = u_new.copy()
             w = u_old.copy()
-            for k in range(10):
-                v = _diffusion_step_eig(w,eigenVectors,eigenValues,epsilon*dt)
+            for k in range(eigs):
+                v = _diffusion_step_eig(w,eigenVectors,eigenValues,dt, c, epsilon)
                 w = v-np.mean(v) 
             u_new = _gl_forward_step(w,dt, epsilon)
             u_diff = (abs(u_new-u_old)).sum()
 
             i = i+1
 
+        print(i, u_diff)
         labels = u_new
         labels[labels<0] = 0
         labels[labels>0] = 1
 
         return labels
+
 
     

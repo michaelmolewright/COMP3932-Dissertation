@@ -60,11 +60,27 @@ def tester(img):
 #img = subsample('../images/hill.jpg', 40)
 #tester(img)
 
-vals = [2,5,7,10,20]
-tm.experiment(1000,0.15,1,vals)
-#tm.experiment(1000,0.175, 10,vals)
-#tm.experiment(1000,0.2, 10,vals)
+vals = [2,4,6,8,10]
+j = [40]
+tm.experiment(1000,0.15,5,vals)
+#tm.experiment(1000,0.175, 20,vals)
+#tm.experiment(1000,0.2, 20,vals)
 
-#variables = ["Gaussian Function", "Local Scaling", "Cosine" ]
-#values = [2.464890571, 5.161708067, 3.374487338]
+
+#matplotlib.use('Agg')
+#
+#plt.xlabel('Eigenvectors')
+#plt.ylabel('Variance')
+#
+#x = [2,4,6,8,10]
+#noise1 = [0.00016, 0.00767, 0.009, 0.00905, 0.008]
+#noise2 = [0.00019, 0.00363, 0.00540, 0.0060, 0.0060]
+#noise3 = [0.00016, 0.00391, 0.00467, 0.00543,  0.00605]
+#
+#plt.plot(x, noise1, label = "0.15")
+#plt.plot(x, noise2, label = "0.175")
+#plt.plot(x, noise3, label = "0.2")
+#plt.legend()
+#plt.savefig("../plots/lineVar.png")
+
 #util.plot_bar(variables, values, "speedBar")

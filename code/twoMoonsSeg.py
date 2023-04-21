@@ -246,8 +246,6 @@ def plot_two_moons(X, seg, path):
             new_c.append("red")
         else:
             new_c.append("green")
-
-    print(len(X), len(new_x) )
     plt.scatter(new_x, new_y, c=new_c, marker=".")
     plt.savefig(path)
 
@@ -272,7 +270,7 @@ def experiment(samples, noise, n, vals, plot=False):
         "segT" : [],
         "acc_scores" : []
     }
-
+    
     for i in range(n):
         X, Y = make_moons(n_samples=samples, noise=noise)
         graphBuilder = bd.graphBuilder()
@@ -281,17 +279,20 @@ def experiment(samples, noise, n, vals, plot=False):
         #---------------Graph-------------------#
         
         graphBuilder.setup(X)
-
+        print("asdasd")
         graphTimeStart = time.time()
         graphBuilder.local_scaling(10)
         graphTimeEnd = time.time()
+        print("asdasd")
 
         lapTimeStart = time.time()
         segmenter.setup(graphBuilder.graph)
         lapTimeEnd = time.time()
 
         segTimeStart = time.time()
-        seg = segmenter.gl_method(0.1,2,2,500,20)
+        #seg = segmenter.gl_method(0.1, 1, 2, 1000, 20)
+        print("asdasd")
+        seg = util.ginzburg_landau_segmentation_test(1,segmenter.eigens["values"], segmenter.eigens["vectors"], 0.1,1,2,200 )
         segTimeEnd = time.time()
 
         acc = accuracy(Y, seg)   
@@ -301,21 +302,25 @@ def experiment(samples, noise, n, vals, plot=False):
         results["lapT"].append(lapTimeEnd - lapTimeStart)
         results["segT"].append(segTimeEnd - segTimeStart)
         results["acc_scores"].append(acc)
+        print(i)
 
-    plot_two_moons(X, seg, '../plots/fieldler_two_moons.jpg')
+        plot_two_moons(X, seg, '../plots/fieldler_two_moons.jpg')
 
     totalT = np.mean(results["totalT"])
     graphT = np.mean(results["graphT"])
     lapT = np.mean(results["lapT"])
     segT = np.mean(results["segT"])
     acc_scores = np.mean(results["acc_scores"])
-    
+    variance = np.var(results["acc_scores"])
+
     print("Noise        -- ", noise)
     #print("Value        -- ", val)
     print("totalT       -- ", totalT)
     print("graphT       -- ", graphT)
-    #print("lapT         -- ", lapT )
-    #print("segT         -- ", segT )
+    print("lapT         -- ", lapT )
+    print("segT         -- ", segT )
     print("acc_scores   -- ", acc_scores)
+    print("variance     -- ", variance)
+
     print()
 

@@ -278,7 +278,7 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
         d_k = d_nth( nodes, eigenVectors, results[0], first_u )
         
-
+        print(iteration)
 
     
     for node in nodes:
@@ -286,6 +286,46 @@ def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilo
 
     return segmentation
 
+def ginzburg_landau_segmentation_test(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
+    segmentation = []
+    u_init = np.asarray(eigenVectors[1])
+    es = [10, 5, 2]
+    for j in range(3):
+        epsilon = es[j]
+        phi = np.asarray(eigenVectors[:20])
+        a_k = np.dot(u_init, phi.T)
+        b_k = np.dot(np.power(u_init,3), phi.T)
+        D_k = np.asarray(eigenValues[:20])
+        D_k = 1 + dt*(epsilon*D_k + c)
+        d_k = np.zeros(len(D_k))
+
+        temp1 = (1+ dt/epsilon + c*dt)
+        u = u_init.copy()
+        u_diff = 1
+        i = 0
+        while (i<iterations) and (u_diff > 1e-5):
+            u_old = u.copy()
+            a_k = np.divide( (temp1*a_k) -  ((dt * b_k)/epsilon) - (dt * d_k), D_k )
+
+            u = np.dot(a_k, phi) # mean constraint
+
+            b_k = np.dot(np.power(u,3), phi.T)
+
+            d_k = np.dot( (u - u_init) , phi.T)
+
+            u = u - np.mean(u)
+
+            u_diff = (abs(u-u_old)).sum()
+            print(u[1])
+            i += 1
+        
+        labels = u
+        labels[labels<0] = 0
+        labels[labels>0] = 1
+
+        u_init = labels
+
+    return labels
 
 def _diffusion_step_eig(v,V,E,dt):
 
