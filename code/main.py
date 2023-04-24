@@ -55,32 +55,35 @@ def tester(img):
         #print('output', str(i), '.png -- r=',x4, ', sig_i=',x1,', sig_x=',x2, ',eps=', x3 )
 
 
-#mk.segment_image_tester('../images/horse_test.jpg', 10)
+mk.segment_image('../images/plane.jpg','../images/planeDesired.jpg')
+#mk.segment_image_tester('../images/polarBear.jpg',50, '../images/polarBear.jpg')
 
 #img = subsample('../images/hill.jpg', 40)
 #tester(img)
 
-vals = [2,4,6,8,10]
+vals = [[1,2],[1,4],[1,6],[1,8],[1,10]]
 j = [40]
-tm.experiment(1000,0.15,5,vals)
-#tm.experiment(1000,0.175, 20,vals)
-#tm.experiment(1000,0.2, 20,vals)
+#tm.experiment(1000,0.15,3,vals)
+#tm.experiment(1000,0.175, 5,vals)
+#tm.experiment(1000,0.2, 5,vals)
 
 
 #matplotlib.use('Agg')
-#
-#plt.xlabel('Eigenvectors')
-#plt.ylabel('Variance')
-#
-#x = [2,4,6,8,10]
-#noise1 = [0.00016, 0.00767, 0.009, 0.00905, 0.008]
-#noise2 = [0.00019, 0.00363, 0.00540, 0.0060, 0.0060]
-#noise3 = [0.00016, 0.00391, 0.00467, 0.00543,  0.00605]
-#
-#plt.plot(x, noise1, label = "0.15")
-#plt.plot(x, noise2, label = "0.175")
-#plt.plot(x, noise3, label = "0.2")
-#plt.legend()
-#plt.savefig("../plots/lineVar.png")
+###
+#plt.xlabel('Algorithm')
+#plt.ylabel('Time (s)')
+###
+#x = ["GL","Perona","Fielder"]
+##no_iters = [729.2, 864.6, 909.73, 932.3, 945.84]
+###noise1 = [0.00016, 0.00767, 0.009, 0.00905, 0.008]
+###noise2 = [0.00019, 0.00363, 0.00540, 0.0060, 0.0060]
+###noise3 = [0.00016, 0.00391, 0.00467, 0.00543,  0.00605]
+###
+#speed = [0.78, 0.02, 0.01]
+#plt.bar(x, speed, color="gray")
+###plt.plot(x, noise2, label = "0.175")
+###plt.plot(x, noise3, label = "0.2")
+###plt.legend()
+#plt.savefig("../plots/speedAlgo.png")
 
 #util.plot_bar(variables, values, "speedBar")

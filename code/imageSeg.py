@@ -134,7 +134,7 @@ def make_seg_img(path, w, h, segment):
     for x in range(w):
         for y in range(h):
             index = y * w + x
-            if segment[index] == 1:
+            if segment[index] == 0:
                 img.putpixel((x, y), (255, 255, 255))
             else:
                 img.putpixel((x, y), (0, 0, 0))
@@ -206,7 +206,30 @@ def remake_seg_image(original, segmentation, factor, path):
     final.save(path)
     return final
 
-def segment_image(img_path, folder="../image_segmentations/"):
+def accuracy_Jaccard(segImagePath,desiredImagePath):
+    imgSeg = Image.open(segImagePath)
+    wS,hS = imgSeg.size
+    imgDes = Image.open(desiredImagePath)
+    wD,hD = imgDes.size
+    totalUnion = 0
+    totalInter = 0
+
+    for x in range(wS):
+        for y in range(hS):
+            if ( imgDes.getpixel((x,y)) == (0,0,0) ) and ( imgSeg.getpixel((x,y)) == (0,0,0) ):
+                continue
+            elif ( imgDes.getpixel((x,y)) == (0,0,0) ) and ( imgSeg.getpixel((x,y)) != (0,0,0) ):
+                totalUnion += 1
+            elif ( imgDes.getpixel((x,y)) != (0,0,0) ) and ( imgSeg.getpixel((x,y)) == (0,0,0) ):
+                totalUnion += 1
+            else:
+                totalInter += 1
+                totalUnion += 1
+
+    print(totalInter,totalUnion)
+    return totalInter/totalUnion
+
+def segment_image(img_path,desired_path, folder="../image_segmentations/"):
     '''
     Function to take an image and perform all three segmentations on it
 
@@ -232,20 +255,21 @@ def segment_image(img_path, folder="../image_segmentations/"):
 
     #---------BUILD-GRAPH-&-COMPUTE-EIGENS------------#
     graphBuilder.setup(pixels)
-
     
-    graphBuilder.gaussian_image(subWidth, 11, 0.3, 16)
+    graphBuilder.gaussian_image(subWidth, 10, 0.2, 4, gtype="colour")
     segmenter.setup(graphBuilder.graph)
     print("Graphs + Eigens Done")
     #-------------------------------------------------#
 
-    seg1 = segmenter.gl_method(0.1, 2, 2.9, 500, 20)
+    seg1 = segmenter.ginzburg_landau_segmentation_method(0.01, 21, 0.2, 500) # 50
     img1 = make_seg_img(folder + 'gl_method_binary.jpg', subWidth, subHeight, seg1)
+
 
     seg2 = segmenter.fielder_method()
     img2 = make_seg_img(folder + 'fielder_method_binary.jpg', subWidth, subHeight, seg2)
 
-    seg3 = segmenter.perona_freeman_method(8)
+    #segmenter.setup(graphBuilder.graph, laptype="standard")
+    seg3 = segmenter.perona_freeman_method(4)
     img3 = make_seg_img(folder + 'perona_freeman_method_binary.jpg', subWidth, subHeight, seg3)
     print("Segmentations Done")
 
@@ -253,7 +277,11 @@ def segment_image(img_path, folder="../image_segmentations/"):
     remake_seg_image(imgOriginal, img2, factor, folder + 'fielder_method_combined.jpg')
     remake_seg_image(imgOriginal, img3, factor, folder + 'perona_freeman_method_combined.jpg')
 
-def segment_image_tester(img_path, iter, folder="../image_segmentations/"):
+    print(accuracy_Jaccard(folder +'fielder_method_combined.jpg', desired_path))
+    print(accuracy_Jaccard(folder +'gl_method_combined.jpg', desired_path))
+    print(accuracy_Jaccard(folder +'perona_freeman_method_combined.jpg', desired_path))
+
+def segment_image_tester(img_path, iter,desiredPath, folder="../image_segmentations/"):
     '''
     Function to take an image and perform all three segmentations on it
 
@@ -285,13 +313,13 @@ def segment_image_tester(img_path, iter, folder="../image_segmentations/"):
         x2 = random.random() * 20
         r = random.randint(5,20)
 
-        print('r=',r, ', sig_i=',x1,', sig_x=',x2)
-        graphBuilder.gaussian_image(subWidth, r, x1, x2)
+        print('r=',r, ', sig_g=',x1,', sig_d=',x2)
+        graphBuilder.gaussian_image(subWidth, r, x1, x2, gtype="colour")
         segmenter.setup(graphBuilder.graph)
         print("Graphs + Eigens Done")
         #-------------------------------------------------#
 
-        seg1 = segmenter.gl_method(0.1, 2, 2.9, 500, 20)
+        seg1 = segmenter.ginzburg_landau_segmentation_method(0.01, 21, .1, 500)
         img1 = make_seg_img(folder + 'gl_method_binary.jpg', subWidth, subHeight, seg1)
 
         seg2 = segmenter.fielder_method()
@@ -305,4 +333,7 @@ def segment_image_tester(img_path, iter, folder="../image_segmentations/"):
         remake_seg_image(imgOriginal, img2, factor, folder + 'fielder_method_combined.jpg')
         remake_seg_image(imgOriginal, img3, factor, folder + 'perona_freeman_method_combined.jpg')
         print("Images Made Done")
+        print(accuracy_Jaccard(folder +'fielder_method_combined.jpg', desiredPath))
+        print(accuracy_Jaccard(folder +'gl_method_combined.jpg', desiredPath))
+        print(accuracy_Jaccard(folder +'perona_freeman_method_combined.jpg', desiredPath))
 

@@ -22,7 +22,7 @@ def cosine(A,B):
         part3 += B[i]**2
 
     cos = part1 / ( part2**0.5 * part3**0.5 )
-    return cos #need to add an offest to protect against negative weights
+    return cos 
 
 class graphBuilder:
     """
@@ -88,7 +88,8 @@ class graphBuilder:
             for n in range(i+1,len(list(self.graph.nodes))):
                 if n != i:
                     d = dist(self.data[i], self.data[n])
-                    self.graph.add_edge( n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )) )
+                    if (d <= all_distances[i][1]):
+                        self.graph.add_edge( n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )) )
         
     def cosine(self):
 
@@ -98,7 +99,7 @@ class graphBuilder:
             for j in range(i+1,len(list(self.graph.nodes))):
                 self.graph.add_edge( i, j, weight = math.exp( cosine(self.data[i],self.data[j]) ) ) #math.exp(cosine(self.data[i],self.data[j]))
 
-    def gaussian_image(self, w, r, sig_gaus, sig_dist, gtype="intesity"):
+    def gaussian_image(self, w, r, sig_gaus, sig_dist, gtype="intensity"):
         self.graph = nx.create_empty_copy(self.graph)
         for i, RGB1 in enumerate(self.data):
             for j, RGB2 in enumerate(self.data):
@@ -111,7 +112,7 @@ class graphBuilder:
                     pixels_away = ( (x2-x1)**2 + (y2-y1)**2 )**0.5
 
                     if pixels_away < r:
-                        if gtype == "intesity":
+                        if gtype == "intensity":
                             I1 = (RGB1[0] + RGB1[1] + RGB1[2]) /3
                             I2 = (RGB2[0] + RGB2[1] + RGB2[2]) /3
 
@@ -129,11 +130,12 @@ class graphBuilder:
 
                             self.graph.add_edge(i, j, weight = yo )
                         elif gtype == "cosine":
-                            new_d = cosine(RGB1, RGB2) * 25
+                            new_d = cosine(RGB1, RGB2)
                             distanceVal = (pixels_away ** 2) / sig_dist
-                            colourVal = math.exp( -((new_d)) / sig_gaus )
+                            colourVal = math.exp( new_d / sig_gaus )
                             yo = colourVal * distanceVal
-
+                            if(yo < 0):
+                                print(colourVal, distanceVal, new_d)
                             self.graph.add_edge(i, j, weight = yo )
                         
                         else:

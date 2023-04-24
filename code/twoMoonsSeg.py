@@ -9,6 +9,7 @@ import matplotlib
 
 import buildGraph as bd
 import segmentation as sgm
+import random
 
 def run_test(n, dt, c, ε, iterations):
 
@@ -268,9 +269,12 @@ def experiment(samples, noise, n, vals, plot=False):
         "graphT" : [],
         "lapT" : [],
         "segT" : [],
-        "acc_scores" : []
+        "acc_scores" : [],
+        "iters":[],
+        "seg2T" : [],
+        "seg3T" : [],
     }
-    
+
     for i in range(n):
         X, Y = make_moons(n_samples=samples, noise=noise)
         graphBuilder = bd.graphBuilder()
@@ -279,32 +283,55 @@ def experiment(samples, noise, n, vals, plot=False):
         #---------------Graph-------------------#
         
         graphBuilder.setup(X)
-        print("asdasd")
+
         graphTimeStart = time.time()
         graphBuilder.local_scaling(10)
         graphTimeEnd = time.time()
-        print("asdasd")
+
 
         lapTimeStart = time.time()
         segmenter.setup(graphBuilder.graph)
         lapTimeEnd = time.time()
 
         segTimeStart = time.time()
-        #seg = segmenter.gl_method(0.1, 1, 2, 1000, 20)
-        print("asdasd")
-        seg = util.ginzburg_landau_segmentation_test(1,segmenter.eigens["values"], segmenter.eigens["vectors"], 0.1,1,2,200 )
+
+        seg = segmenter.ginzburg_landau_segmentation_method(.1,1, 2, 200)
+
+        plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
+        seg = segmenter.fielder_method()
+        plot_two_moons(X, seg, '../plots/fielder_method.jpg')
         segTimeEnd = time.time()
+
+
+        #segTimeStart1 = time.time()
+        #seg = segmenter.ginzburg_landau_segmentation_method(0.1,1, 2, 500)
+        #plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
+        #segTimeEnd1 = time.time()
+        #results["segT"].append(segTimeEnd1 - segTimeStart1)
+###
+        #segTimeStart2 = time.time()
+        #seg = segmenter.fielder_method()
+        #plot_two_moons(X, seg, '../plots/fielder_method.jpg')
+        #segTimeEnd2 = time.time()
+        #results["seg2T"].append(segTimeEnd2 - segTimeStart2)
+###
+        #segTimeStart3 = time.time()
+        #seg = segmenter.perona_freeman_method(4)
+        #segTimeEnd3 = time.time()
+        #results["seg3T"].append(segTimeEnd3 - segTimeStart3)
 
         acc = accuracy(Y, seg)   
         #---------------------------------------#    
         results["totalT"].append(segTimeEnd - graphTimeStart)
         results["graphT"].append(graphTimeEnd - graphTimeStart)
         results["lapT"].append(lapTimeEnd - lapTimeStart)
-        results["segT"].append(segTimeEnd - segTimeStart)
+        #results["segT"].append(segTimeEnd - segTimeStart)
         results["acc_scores"].append(acc)
+        #results["iters"].append(seg[1])
         print(i)
 
-        plot_two_moons(X, seg, '../plots/fieldler_two_moons.jpg')
+        
+        #plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
 
     totalT = np.mean(results["totalT"])
     graphT = np.mean(results["graphT"])
@@ -312,15 +339,21 @@ def experiment(samples, noise, n, vals, plot=False):
     segT = np.mean(results["segT"])
     acc_scores = np.mean(results["acc_scores"])
     variance = np.var(results["acc_scores"])
+    iters = np.mean(results["iters"])
+    seg2T = np.mean(results["seg2T"])
+    seg3T = np.mean(results["seg3T"])
 
-    print("Noise        -- ", noise)
-    #print("Value        -- ", val)
-    print("totalT       -- ", totalT)
-    print("graphT       -- ", graphT)
-    print("lapT         -- ", lapT )
+    # print("Noise        -- ", noise)
+    # print("Value        -- ", val)
+    # print("totalT       -- ", totalT)
+    # print("graphT       -- ", graphT)
+    # print("lapT         -- ", lapT )
     print("segT         -- ", segT )
-    print("acc_scores   -- ", acc_scores)
-    print("variance     -- ", variance)
+    print("seg2T         -- ", seg2T )
+    print("seg3T         -- ", seg3T )
+    # print("acc_scores   -- ", acc_scores)
+    # print("variance     -- ", variance)
+    # print("iters     -- ", iters)
 
     print()
 
