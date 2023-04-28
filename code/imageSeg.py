@@ -143,7 +143,6 @@ def make_seg_img(path, w, h, segment):
     img.save(path)
     return img
 
-
 def subsample(img, factor):
     """
     Subsamples an image by averaging the pixels in each block of size `factor x factor`.
@@ -336,4 +335,47 @@ def segment_image_tester(img_path, iter,desiredPath, folder="../image_segmentati
         print(accuracy_Jaccard(folder +'fielder_method_combined.jpg', desiredPath))
         print(accuracy_Jaccard(folder +'gl_method_combined.jpg', desiredPath))
         print(accuracy_Jaccard(folder +'perona_freeman_method_combined.jpg', desiredPath))
+
+def plot_image_eigenfunctions(img_path, folder="../plots/"):
+    imgOriginal = Image.open(img_path)
+    w,h = imgOriginal.size
+
+    factor = w//50 #arbitrary number for subsampling
+
+    #subsampleImage
+    subImg = subsample(imgOriginal, factor)
+
+    subWidth, subHeight = subImg.size
+    
+    pixels = list(subImg.getdata())
+
+    #Setup graphBuilder and the Segmenter objects
+    print("Starting...")
+    graphBuilder = bd.graphBuilder()
+    segmenter = sgm.segment()
+
+    #---------BUILD-GRAPH-&-COMPUTE-EIGENS------------#
+    graphBuilder.setup(pixels)
+    
+    graphBuilder.gaussian_image(subWidth, 10, 0.2, 4, gtype="colour")
+    segmenter.setup(graphBuilder.graph)
+
+    final = Image.new('RGB', (subWidth, subHeight))
+    pixelsFinal = list(final.getdata())
+    for i in range (0,6):
+        eig_2 = np.asarray(segmenter.eigens["vectors"][i])
+        maxE = np.max(eig_2)
+        
+        
+
+        for y in range(subHeight):
+            for x in range(subWidth):
+                index =  (y*subWidth) + x
+                c = int((eig_2[index]/maxE) * 255)
+                final.putpixel( (x,y), (c,c,c))
+
+
+
+        
+        final.save(folder + "imagetester" + str(i) + ".jpg")
 
