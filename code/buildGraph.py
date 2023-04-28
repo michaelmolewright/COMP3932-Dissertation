@@ -12,6 +12,9 @@ def dist(A, B):
     return total**0.5
 
 def cosine(A,B):
+    '''
+    Compte the cosine value between two vectors, will be used as a similarity function
+    '''
     part1 = 0
     part2 = 0
     part3 = 0
@@ -92,7 +95,10 @@ class graphBuilder:
                         self.graph.add_edge( n, i, weight= 2.781 ** ( -((d ** 2)) / (all_distances[n][1] * all_distances[i][1] )) )
         
     def cosine(self):
-
+        '''
+        Creates a fully connect graph using the consine function as
+        the similarity between the nodes in the graph
+        '''
         self.graph = nx.create_empty_copy(self.graph)
 
         for i in range(0,len(list(self.graph.nodes))):
@@ -100,6 +106,9 @@ class graphBuilder:
                 self.graph.add_edge( i, j, weight = math.exp( cosine(self.data[i],self.data[j]) ) ) #math.exp(cosine(self.data[i],self.data[j]))
 
     def gaussian_image(self, w, r, sig_gaus, sig_dist, gtype="intensity"):
+        '''
+        Creates a connected graph using different 
+        '''
         self.graph = nx.create_empty_copy(self.graph)
         for i, RGB1 in enumerate(self.data):
             for j, RGB2 in enumerate(self.data):
@@ -126,17 +135,16 @@ class graphBuilder:
                             new_d = dist(RGB1, RGB2) / 20
                             distanceVal = (pixels_away ** 2) / sig_dist
                             colourVal = math.exp( -((new_d)) / sig_gaus )
-                            yo = colourVal * distanceVal
+                            finalVal = colourVal * distanceVal
 
-                            self.graph.add_edge(i, j, weight = yo )
+                            self.graph.add_edge(i, j, weight = finalVal )
                         elif gtype == "cosine":
                             new_d = cosine(RGB1, RGB2)
                             distanceVal = (pixels_away ** 2) / sig_dist
                             colourVal = math.exp( new_d / sig_gaus )
-                            yo = colourVal * distanceVal
-                            if(yo < 0):
-                                print(colourVal, distanceVal, new_d)
-                            self.graph.add_edge(i, j, weight = yo )
+                            finalVal = colourVal * distanceVal
+                            
+                            self.graph.add_edge(i, j, weight = finalVal )
                         
                         else:
                             print("not a valid gtype -- try again")

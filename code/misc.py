@@ -8,6 +8,9 @@ def g(x,sig):
     return np.power( e, -(x**2) / (2*sig**2 ) )
 
 def plot_gausian_func():
+    '''
+    Function to plot the guassian function in matplotlib
+    '''
     matplotlib.use('Agg')
     x = np.linspace(-20, 20, 100)
 
