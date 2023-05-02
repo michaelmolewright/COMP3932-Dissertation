@@ -8,9 +8,9 @@ import random
 
 import buildGraph as bd
 import segmentation as sgm
-# Open image using Image module
 
-def messing():
+
+def imageTesting():
 
     im = Image.open("./images/banana.jpg")
     pixels = list(im.getdata())
@@ -129,6 +129,9 @@ r, g, b = pixels[y * width + x]
 '''
 
 def make_seg_img(path, w, h, segment):
+    '''
+    Function that create a binary representation of a segmneted image
+    '''
     img = Image.new('RGB', (w, h))
 
     for x in range(w):
@@ -176,6 +179,11 @@ def subsample(img, factor):
     return subsampled
 
 def remake_seg_image(original, segmentation, factor, path):
+    '''
+    Function that turns a binary segmnetation into a segemnated version pof the original
+    by combining the two images
+    params: img, img, int, string
+    '''
     widthO, heightO = original.size
     widthS, heightS = segmentation.size
 
@@ -206,6 +214,10 @@ def remake_seg_image(original, segmentation, factor, path):
     return final
 
 def accuracy_Jaccard(segImagePath,desiredImagePath):
+    '''
+    Function that returns the jaccard accuracy of an image
+    params: string,string
+    '''
     imgSeg = Image.open(segImagePath)
     wS,hS = imgSeg.size
     imgDes = Image.open(desiredImagePath)
@@ -225,14 +237,13 @@ def accuracy_Jaccard(segImagePath,desiredImagePath):
                 totalInter += 1
                 totalUnion += 1
 
-    print(totalInter,totalUnion)
     return totalInter/totalUnion
 
 def segment_image(img_path,desired_path, folder="../image_segmentations/"):
     '''
     Function to take an image and perform all three segmentations on it
-
     Will return timing for each segmentation
+    params: string,string,string
     '''
     
     imgOriginal = Image.open(img_path)
@@ -276,9 +287,19 @@ def segment_image(img_path,desired_path, folder="../image_segmentations/"):
     remake_seg_image(imgOriginal, img2, factor, folder + 'fielder_method_combined.jpg')
     remake_seg_image(imgOriginal, img3, factor, folder + 'perona_freeman_method_combined.jpg')
 
-    print(accuracy_Jaccard(folder +'fielder_method_combined.jpg', desired_path))
-    print(accuracy_Jaccard(folder +'gl_method_combined.jpg', desired_path))
-    print(accuracy_Jaccard(folder +'perona_freeman_method_combined.jpg', desired_path))
+    jac1 = accuracy_Jaccard(folder +'fielder_method_combined.jpg', desired_path)
+    jac2 = accuracy_Jaccard(folder +'gl_method_combined.jpg', desired_path)
+    jac3 = accuracy_Jaccard(folder +'perona_freeman_method_combined.jpg', desired_path)
+
+    print("Fielder Method:")
+    print("Jaccard Accuracy  -- ", jac1)
+    print()
+    print("Perona Freeman Method:")
+    print("Jaccard Accuracy  -- ", jac3)
+    print()
+    print("GL Method:")
+    print("Jaccard Accuracy  -- ", jac2)
+    print()
 
 def segment_image_tester(img_path, iter,desiredPath, folder="../image_segmentations/"):
     '''

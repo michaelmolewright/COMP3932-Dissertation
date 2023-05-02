@@ -240,23 +240,6 @@ def get_all_u_nth(a_k, eigenVectors, nodes):
         #results_cubed.append(x**3)
         total += x
 
-    #Mean Constraint      int u(x)dx = 0,
-    '''
-    if total < -3:
-        val = (total) / len(nodes)
-        for r in range(0, len(results)):
-            results[r] = results[r] - val
-            results_cubed.append(results[r]**3)
-    elif total > 3:
-        val = (total) / len(nodes)
-        for r in range(0, len(results)):
-            results[r] = results[r] - val
-            results_cubed.append(results[r]**3)
-    else:
-        for r in range(0, len(results)):
-            results_cubed.append(results[r]**3)
-    '''
-
     return [results, results_cubed]
 
 def ginzburg_landau_segmentation(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
@@ -325,50 +308,6 @@ def ginzburg_landau_segmentation_test(nodes, eigenValues, eigenVectors, dt, c, e
 
     return labels
 
-def _diffusion_step_eig(v,V,E,dt):
-
-    if len(v.shape) > 1:
-        return np.dot(V,np.divide(np.dot(V.T,v),(1+dt*E)))
-    else:
-        u_new = np.dot(V,np.divide(np.dot(V.T,v[:,np.newaxis]),(1+dt*E)))
-        return u_new.ravel()
-
-def _gl_forward_step(u_old,dt,eps):
-    v = u_old-dt/eps*(np.power(u_old,3)-u_old) #double well explicit step
-    return v
-
-
-def ginzburg_landau_segmentation_two(nodes, eigenValues, eigenVectors, dt, c, epsilon, iterations):
-    segmentation = []
-    #u_init = u_initial(eigenVectors[:, 1], nodes)
-    u_init = eigenVectors[:, 1]
-
-    i = 0
-    u_new = u_init.copy()
-    u_diff = 1
-    tol = 0.0001
-
-    while (i<iterations) and (u_diff > tol):
-        u_old = u_init.copy()
-        w = u_old.copy()
-        for k in range(10): # diffuse and threshold for a while
-            v = _diffusion_step_eig(w,eigenVectors,eigenValues,epsilon*dt)
-            w = v-np.mean(v) # force the 0 mean
-        #v = _gl_forward_step(u_old,dt, epsilon)
-        #v = v-np.mean(v)
-        u_new = _gl_forward_step(w,dt, epsilon)
-        u_diff = (abs(u_new-u_old)).sum()
-
-        i = i+1
-    
-    for j in u_new:
-        segmentation.append(segment(j))
-    labels = u_new
-    labels[labels<0] = -1
-    labels[labels>0] = 1
-
-    print(i, "  ", u_diff)
-    return labels
 
 def shi_malek_segmentation(k, eigenvectors):
 

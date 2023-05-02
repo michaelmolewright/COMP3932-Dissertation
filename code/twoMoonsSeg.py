@@ -260,16 +260,17 @@ def accuracy(trueVals, predictedVals):
     if acc < 0.5:
         acc = 1-acc
     return acc
-
     
-def experiment(samples, noise, n, vals, plot=False):
+def experiment(samples, noise, n, plot=False):
     
     results = {
         "totalT" : [],
         "graphT" : [],
         "lapT" : [],
         "segT" : [],
-        "acc_scores" : [],
+        "acc_scores1" : [],
+        "acc_scores2" : [],
+        "acc_scores3" : [],
         "iters":[],
         "seg2T" : [],
         "seg3T" : [],
@@ -293,40 +294,39 @@ def experiment(samples, noise, n, vals, plot=False):
         segmenter.setup(graphBuilder.graph)
         lapTimeEnd = time.time()
 
-        segTimeStart = time.time()
 
-        seg = segmenter.ginzburg_landau_segmentation_method(.1,1, 2, 200)
+        segTimeStart1 = time.time()
+        seg1 = segmenter.ginzburg_landau_segmentation_method(0.1,1, 2, 500)
+        segTimeEnd1 = time.time()
+        results["segT"].append(segTimeEnd1 - segTimeStart1)
 
-        plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
-        seg = segmenter.fielder_method()
-        plot_two_moons(X, seg, '../plots/fielder_method.jpg')
-        segTimeEnd = time.time()
+        segTimeStart2 = time.time()
+        seg2 = segmenter.fielder_method()
+        segTimeEnd2 = time.time()
+        results["seg2T"].append(segTimeEnd2 - segTimeStart2)
 
+        segTimeStart3 = time.time()
+        seg3 = segmenter.perona_freeman_method(4)
+        segTimeEnd3 = time.time()
+        results["seg3T"].append(segTimeEnd3 - segTimeStart3)
 
-        #segTimeStart1 = time.time()
-        #seg = segmenter.ginzburg_landau_segmentation_method(0.1,1, 2, 500)
-        #plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
-        #segTimeEnd1 = time.time()
-        #results["segT"].append(segTimeEnd1 - segTimeStart1)
-###
-        #segTimeStart2 = time.time()
-        #seg = segmenter.fielder_method()
-        #plot_two_moons(X, seg, '../plots/fielder_method.jpg')
-        #segTimeEnd2 = time.time()
-        #results["seg2T"].append(segTimeEnd2 - segTimeStart2)
-###
-        #segTimeStart3 = time.time()
-        #seg = segmenter.perona_freeman_method(4)
-        #segTimeEnd3 = time.time()
-        #results["seg3T"].append(segTimeEnd3 - segTimeStart3)
+        acc1 = accuracy(Y, seg1) 
+        acc2 = accuracy(Y, seg2) 
+        acc3 = accuracy(Y, seg3)
 
-        acc = accuracy(Y, seg)   
+        plot_two_moons(X, seg1, '../plots/GL_two_moons.jpg')
+        plot_two_moons(X, seg2, '../plots/fielder_method.jpg')
+        plot_two_moons(X, seg3, '../plots/perona_freeman_method.jpg')   
         #---------------------------------------#    
-        results["totalT"].append(segTimeEnd - graphTimeStart)
+        results["totalT"].append(segTimeEnd3 - graphTimeStart)
         results["graphT"].append(graphTimeEnd - graphTimeStart)
         results["lapT"].append(lapTimeEnd - lapTimeStart)
-        #results["segT"].append(segTimeEnd - segTimeStart)
-        results["acc_scores"].append(acc)
+        results["segT"].append(segTimeEnd1 - segTimeStart1)
+        results["seg2T"].append(segTimeEnd2 - segTimeStart2)
+        results["seg3T"].append(segTimeEnd3 - segTimeStart3)
+        results["acc_scores1"].append(acc1)
+        results["acc_scores2"].append(acc2)
+        results["acc_scores3"].append(acc3)
         #results["iters"].append(seg[1])
         print(i)
 
@@ -336,9 +336,11 @@ def experiment(samples, noise, n, vals, plot=False):
     totalT = np.mean(results["totalT"])
     graphT = np.mean(results["graphT"])
     lapT = np.mean(results["lapT"])
+    acc_scores1 = np.mean(results["acc_scores1"])
+    acc_scores2 = np.mean(results["acc_scores2"])
+    acc_scores3 = np.mean(results["acc_scores3"])
+    #variance = np.var(results["acc_scores"])
     segT = np.mean(results["segT"])
-    acc_scores = np.mean(results["acc_scores"])
-    variance = np.var(results["acc_scores"])
     iters = np.mean(results["iters"])
     seg2T = np.mean(results["seg2T"])
     seg3T = np.mean(results["seg3T"])
@@ -348,9 +350,19 @@ def experiment(samples, noise, n, vals, plot=False):
     # print("totalT       -- ", totalT)
     # print("graphT       -- ", graphT)
     # print("lapT         -- ", lapT )
-    print("segT         -- ", segT )
-    print("seg2T         -- ", seg2T )
-    print("seg3T         -- ", seg3T )
+    print("Fielder Method:")
+    print("Time      -- ", seg2T)
+    print("Accuracy  -- ", acc_scores2)
+    print()
+    print("Perona Freeman Method:")
+    print("Time      -- ", seg3T)
+    print("Accuracy  -- ", acc_scores3)
+    print()
+    print("GL Method:")
+    print("Time      -- ", segT)
+    print("Accuracy  -- ", acc_scores1)
+    print()
+
     # print("acc_scores   -- ", acc_scores)
     # print("variance     -- ", variance)
     # print("iters     -- ", iters)
