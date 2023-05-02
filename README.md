@@ -1,48 +1,24 @@
 # COMP3932 Synoptic Project
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
 ## Name
 An implementation of 3 graph segmentation algorithms in Python
 
 ## Description
-This project consists of a class that can build graphs from spatial data sets and images using different weight functions. There is also a class that can then segment these graphs using 3 seperate segmentation algorithms. All of the algorithms use the graph Laplacian.
+This project consists of a class that can build graphs from spatial data sets and images using different weight functions. There is also a class that can then segment these graphs using 3 seperate segmentation algorithms. All of the algorithms use the graph Laplacian. A PDF is also included which is my final report. Paramters can be changed in the code if needed and the classes can be used more generally if needed. Please note, the helper.py and misc.py contain functions that may have been useful, but arent used in the final solution
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Here is a directory chart:
+.
+├── Code/                   # Contains all of the Python Code
+├── Image_segmenations/     # Folder for image segmenations
+├── Images/                 # Folder for Stock images
+├── plots/                  # All of the Two Moons plots and other graphs generated
+├── requirements.txt        # Contains all of the appropriate requirements
+├── .gitignore
+├── README.md 
+└── report.pdf         
 
 ## Installation
-A requirements.txt file is included in this repository. To install and run the code, open a virtual environment in Python and type the command "pip install -r requirements.txt"
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+A requirements.txt file is included in this repository. To install and run the code, open a virtual environment in Python and type the command "pip install -r requirements.txt". A virtual environment isnt necassary however it could make development more streamlined.
 
 ## Authors and acknowledgment
 Michael Wright
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
