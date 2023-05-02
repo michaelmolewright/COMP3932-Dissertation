@@ -116,7 +116,6 @@ def experiment(samples, noise, n, plot=False):
         results["acc_scores2"].append(acc2)
         results["acc_scores3"].append(acc3)
         #results["iters"].append(seg[1])
-        print(i)
 
         
         #plot_two_moons(X, seg, '../plots/GL_two_moons.jpg')
@@ -129,7 +128,7 @@ def experiment(samples, noise, n, plot=False):
     acc_scores3 = np.mean(results["acc_scores3"])
     #variance = np.var(results["acc_scores"])
     segT = np.mean(results["segT"])
-    iters = np.mean(results["iters"])
+    #iters = np.mean(results["iters"])
     seg2T = np.mean(results["seg2T"])
     seg3T = np.mean(results["seg3T"])
 
